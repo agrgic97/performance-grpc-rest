@@ -1,0 +1,71 @@
+services:
+  # ---------- REST (Spring Boot / Java) ----------
+  rest-spring-boot:
+    build:
+      context: ./rest-spring-boot
+      dockerfile: Dockerfile
+    container_name: rest-spring-boot
+    environment:
+      - PAYLOADS_DIR=/payloads
+    volumes:
+      - ./payloads:/payloads:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - bench
+
+  # ---------- gRPC (Spring Boot / Java) ----------
+  grpc-spring-boot:
+    build:
+      context: ./grpc-spring-boot
+      dockerfile: Dockerfile
+    container_name: grpc-spring-boot
+    environment:
+      - PAYLOADS_DIR=/payloads
+      # optional: wenn du den Port in application.yaml konfigurierst
+      # - GRPC_SERVER_PORT=9090
+    volumes:
+      - ./payloads:/payloads:ro
+    ports:
+      # Host 9091 -> Container 9090 (damit es nicht mit grpc-node kollidiert)
+      - "9091:9090"
+    networks:
+      - bench
+
+  # ---------- REST (Node / Express) ----------
+  rest-node:
+    build:
+      context: ./rest-node
+      dockerfile: Dockerfile
+    container_name: rest-node
+    environment:
+      - PAYLOADS_DIR=/payloads
+      - PORT=3000
+    volumes:
+      - ./payloads:/payloads:ro
+    ports:
+      # Host 8081 -> Container 3000
+      - "8081:3000"
+    networks:
+      - bench
+
+  # ---------- gRPC (Node) ----------
+  grpc-node:
+    build:
+      context: ./grpc-node
+      dockerfile: Dockerfile
+    container_name: grpc-node
+    environment:
+      - PAYLOADS_DIR=/payloads
+      - GRPC_PORT=9090
+    volumes:
+      - ./payloads:/payloads:ro
+    ports:
+      # Host 9090 -> Container 9090
+      - "9090:9090"
+    networks:
+      - bench
+
+networks:
+  bench:
+    driver: bridge
