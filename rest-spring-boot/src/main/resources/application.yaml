@@ -1,0 +1,10 @@
+server:
+  port: 8080
+  compression:
+    enabled: false   # wichtig: sonst wird "REST+Kompression" gemessen statt REST pur
+spring:
+  jackson:
+    serialization:
+      indent_output: false
+bench:
+  payloads-dir: ${PAYLOADS_DIR:../performance-grpc-rest/payloads}

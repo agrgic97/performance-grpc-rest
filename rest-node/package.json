@@ -1,0 +1,15 @@
+{
+  "name": "rest-node",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^17.2.3",
+    "express": "^4.22.1",
+    "morgan": "^1.10.1"
+  }
+}

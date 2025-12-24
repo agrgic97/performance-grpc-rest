@@ -1,0 +1,14 @@
+syntax = "proto3";
+package bench.payload;
+
+service PayloadService {
+  rpc GetSmall  (Empty) returns (PayloadResponse);
+  rpc GetMedium (Empty) returns (PayloadResponse);
+  rpc GetLarge  (Empty) returns (PayloadResponse);
+}
+
+message Empty {}
+
+message PayloadResponse {
+  bytes payload = 1;
+}

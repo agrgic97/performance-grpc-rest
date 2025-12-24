@@ -1,0 +1,18 @@
+syntax = "proto3";
+package bench.payload;
+
+option java_multiple_files = true;
+option java_package = "grgic.antonio.grpc_spring_boot.proto";
+option java_outer_classname = "PayloadProto";
+
+service PayloadService {
+  rpc GetSmall  (Empty) returns (PayloadResponse);
+  rpc GetMedium (Empty) returns (PayloadResponse);
+  rpc GetLarge  (Empty) returns (PayloadResponse);
+}
+
+message Empty {}
+
+message PayloadResponse {
+  bytes payload = 1;
+}
