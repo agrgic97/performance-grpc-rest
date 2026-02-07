@@ -3,3 +3,6 @@ spring:
     name: grpc-spring-boot
 bench:
   payloads-dir: ${PAYLOADS_DIR:../performance-grpc-rest/payloads}
+grpc:
+  server:
+    port: ${PORT:9090}

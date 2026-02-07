@@ -10,7 +10,7 @@ services:
     volumes:
       - ./payloads:/payloads:ro
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - bench
 
@@ -22,12 +22,10 @@ services:
     container_name: grpc-spring-boot
     environment:
       - PAYLOADS_DIR=/payloads
-      # optional: wenn du den Port in application.yaml konfigurierst
-      # - GRPC_SERVER_PORT=9090
+      - PORT=9090
     volumes:
       - ./payloads:/payloads:ro
     ports:
-      # Host 9091 -> Container 9090 (damit es nicht mit grpc-node kollidiert)
       - "9091:9090"
     networks:
       - bench
@@ -44,8 +42,7 @@ services:
     volumes:
       - ./payloads:/payloads:ro
     ports:
-      # Host 8081 -> Container 3000
-      - "8081:3000"
+      - "3001:3000"
     networks:
       - bench
 
@@ -57,12 +54,11 @@ services:
     container_name: grpc-node
     environment:
       - PAYLOADS_DIR=/payloads
-      - GRPC_PORT=9090
+      - PORT=4000
     volumes:
       - ./payloads:/payloads:ro
     ports:
-      # Host 9090 -> Container 9090
-      - "9090:9090"
+      - "4001:4000"
     networks:
       - bench
 

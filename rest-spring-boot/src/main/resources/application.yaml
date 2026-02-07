@@ -1,7 +1,7 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
   compression:
-    enabled: false   # wichtig: sonst wird "REST+Kompression" gemessen statt REST pur
+    enabled: false
 spring:
   jackson:
     serialization:

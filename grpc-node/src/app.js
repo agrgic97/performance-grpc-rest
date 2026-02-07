@@ -1,4 +1,4 @@
-require("dotenv").config(); // optional, falls .env genutzt wird
+require("dotenv").config();
 
 const path = require("path");
 const grpc = require("@grpc/grpc-js");
@@ -7,7 +7,7 @@ const protoLoader = require("@grpc/proto-loader");
 const { PayloadAssetService } = require("./service/PayloadAssetService");
 const { createPayloadServiceImpl } = require("./grpc/payloadServiceImpl");
 
-const GRPC_PORT = process.env.GRPC_PORT ? Number(process.env.GRPC_PORT) : 9090;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const PROTO_PATH = path.resolve(__dirname, "../proto/payload.proto");
 const packageDef = protoLoader.loadSync(PROTO_PATH, {
@@ -28,7 +28,7 @@ server.addService(
 );
 
 server.bindAsync(
-    `0.0.0.0:${GRPC_PORT}`,
+    `0.0.0.0:${PORT}`,
     grpc.ServerCredentials.createInsecure(),
     (err, port) => {
         if (err) {
