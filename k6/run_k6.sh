@@ -3,6 +3,8 @@ set -euo pipefail
 
 MODE="${1:-rest}"     # rest | grpc
 TARGET="${2:-java}"   # java | node
+TEST="${3:-all}"      # z.B. small | medium | large | stream_large | all
+
 
 OUT_DIR="results"
 mkdir -p "$OUT_DIR"
@@ -19,7 +21,7 @@ if [ "$TARGET" = "java" ]; then
   GRPC_ADDR="localhost:9090"
 elif [ "$TARGET" = "node" ]; then
   REST_BASE="http://localhost:3000"
-  GRPC_ADDR="localhost:3001"
+  GRPC_ADDR="localhost:4000"
 else
   echo "ERROR: Unknown target '$TARGET'" >&2
   exit 1
@@ -53,16 +55,30 @@ run_grpc () {
 echo "=========================================="
 echo " Mode   : $MODE"
 echo " Target : $TARGET"
+echo " Test   : $TEST"
 echo "=========================================="
 
 if [ "$MODE" = "rest" ]; then
-  run_rest small  "k6/rest_small.js"
-  run_rest medium "k6/rest_medium.js"
-  run_rest large  "k6/rest_large.js"
+  if [ "$TEST" = "all" ]; then
+    run_rest small  "k6/rest_small.js"
+    run_rest medium "k6/rest_medium.js"
+    run_rest large  "k6/rest_large.js"
+  else
+    run_rest "$TEST" "k6/rest_${TEST}.js"
+  fi
+
 elif [ "$MODE" = "grpc" ]; then
-  run_grpc small  "k6/grpc_small.js"
-  run_grpc medium "k6/grpc_medium.js"
-  run_grpc large  "k6/grpc_large.js"
+  if [ "$TEST" = "all" ]; then
+    run_grpc small         "k6/grpc_small.js"
+    run_grpc medium        "k6/grpc_medium.js"
+    run_grpc large         "k6/grpc_large.js"
+    run_grpc stream_small  "k6/grpc_stream_small.js"
+    run_grpc stream_medium "k6/grpc_stream_medium.js"
+    run_grpc stream_large  "k6/grpc_stream_large.js"
+  else
+    run_grpc "$TEST" "k6/grpc_${TEST}.js"
+  fi
+
 else
   echo "ERROR: Mode must be 'rest' or 'grpc'" >&2
   exit 1

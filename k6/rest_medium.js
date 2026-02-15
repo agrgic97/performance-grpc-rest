@@ -10,22 +10,15 @@ export const options = {
             executor: "ramping-vus",
             startVUs: 0,
             stages: [
-                { duration: "20s", target: 50 },
+                { duration: "20s", target: 1000 },
             ],
             gracefulRampDown: "30s",
         },
     },
 };
 
-const params = {
-    headers: {
-        "Cache-Control": "no-store",
-        Pragma: "no-cache",
-    },
-};
-
 export default function () {
-    const res = http.get(`${BASE_URL}${PATH}`, params);
+    const res = http.get(`${BASE_URL}${PATH}`);
 
     check(res, {
         "status 200": (r) => r.status === 200,

@@ -1,11 +1,11 @@
-const {resolve, join} = require("node:path");
-const {readFileSync} = require("node:fs");
+const fs = require("fs");
+const path = require("path");
 
 class PayloadAssetService {
     constructor({ payloadDir } = {}) {
         this.payloadDir =
-            payloadDir?.trim() ||
-            process.env.PAYLOADS_DIR?.trim();
+            (payloadDir && payloadDir.trim()) ||
+            (process.env.PAYLOADS_DIR && process.env.PAYLOADS_DIR.trim());
 
         this.small = null;
         this.medium = null;
@@ -13,15 +13,11 @@ class PayloadAssetService {
     }
 
     load() {
-        const dir = resolve(this.payloadDir);
+        const dir = path.resolve(this.payloadDir);
 
-        const smallPath = join(dir, "small_100b.json");
-        const mediumPath = join(dir, "medium_50kb.json");
-        const largePath = join(dir, "large_2mb.png");
-
-        this.small = readFileSync(smallPath);
-        this.medium = readFileSync(mediumPath);
-        this.large = readFileSync(largePath);
+        this.small = fs.readFileSync(path.join(dir, "small_100b.json"));
+        this.medium = fs.readFileSync(path.join(dir, "medium_50kb.json"));
+        this.large = fs.readFileSync(path.join(dir, "large_2mb.png"));
 
         return this;
     }
@@ -37,4 +33,4 @@ class PayloadAssetService {
     }
 }
 
-module.exports = {PayloadAssetService};
+module.exports = { PayloadAssetService };

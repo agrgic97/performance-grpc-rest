@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 class PayloadAssetService {
-    constructor({ payloadDir } = {}) {
+    constructor({payloadDir} = {}) {
         this.payloadDir =
             (payloadDir && payloadDir.trim()) ||
             (process.env.PAYLOADS_DIR && process.env.PAYLOADS_DIR.trim());
@@ -25,12 +25,14 @@ class PayloadAssetService {
     getSmall() {
         return this.small;
     }
+
     getMedium() {
         return this.medium;
     }
+
     getLarge() {
         return this.large;
     }
 }
 
-module.exports = { PayloadAssetService };
+module.exports = {PayloadAssetService};

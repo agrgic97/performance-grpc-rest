@@ -8,20 +8,13 @@ const GRPC_ADDR = __ENV.GRPC_ADDR || "localhost:9090";
 
 export const options = {
     scenarios: {
-        medium_only: {
+        large_only: {
             executor: "ramping-vus",
             startVUs: 0,
             stages: [
-                { duration: "20s", target: 50 },
-
-                { duration: "20s", target: 200 },
-
-                { duration: "20s", target: 500 },
-
                 { duration: "20s", target: 1000 },
-
-                { duration: "20s", target: 0 },
             ],
+            gracefulRampDown: "30s",
         },
     },
 };
