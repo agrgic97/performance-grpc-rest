@@ -1,5 +1,6 @@
 import grpc from "k6/net/grpc";
 import { check, sleep } from "k6";
+import {buildOptions} from "./config/options.js";
 
 const client = new grpc.Client();
 client.load(["proto"], "payload.proto");
@@ -8,18 +9,7 @@ const GRPC_ADDR = __ENV.GRPC_ADDR || "localhost:9090";
 
 const CHUNK_SIZE = parseInt(__ENV.CHUNK_SIZE || "200000", 10);
 
-export const options = {
-    scenarios: {
-        stream_large_only: {
-            executor: "ramping-vus",
-            startVUs: 0,
-            stages: [
-                { duration: "20s", target: 1000 },
-            ],
-            gracefulRampDown: "30s",
-        },
-    },
-};
+export const options = buildOptions("grpc-stream-large");
 
 export default function () {
     if(__ITER === 0) {

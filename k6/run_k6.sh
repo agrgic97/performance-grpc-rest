@@ -29,24 +29,38 @@ fi
 
 run_rest () {
   local name="$1"
-  local script="$2"
+    local script="$2"
 
-  echo "▶ REST $TARGET: $name"
-  k6 run \
-    -e BASE_URL="$REST_BASE" \
-    --summary-export="$OUT_DIR/rest_${TARGET}_${name}_${TS}.json" \
-    "$script"
+    local steps=(1 50 200 500 1000)
+    local duration="20s"
+
+    for vus in "${steps[@]}"; do
+      echo "▶ REST $TARGET: $name (VUs=$vus)"
+      k6 run \
+        -e BASE_URL="$REST_BASE" \
+        -e VUS="$vus" \
+        -e DURATION="$duration" \
+        --summary-export="$OUT_DIR/rest_${TARGET}_${name}_${vus}vus_${TS}.json" \
+        "$script"
+    done
 }
 
 run_grpc () {
   local name="$1"
-  local script="$2"
+    local script="$2"
+  
+    local steps=(1 50 200 500 1000)
+    local duration="20s"
 
-  echo "▶ gRPC $TARGET: $name"
-  k6 run \
-    -e GRPC_ADDR="$GRPC_ADDR" \
-    --summary-export="$OUT_DIR/grpc_${TARGET}_${name}_${TS}.json" \
-    "$script"
+    for vus in "${steps[@]}"; do
+      echo "▶ gRPC $TARGET: $name (VUs=$vus)"
+      k6 run \
+        -e GRPC_ADDR="$GRPC_ADDR" \
+        -e VUS="$vus" \
+        -e DURATION="$duration" \
+        --summary-export="$OUT_DIR/grpc_${TARGET}_${name}_${vus}vus_${TS}.json" \
+        "$script"
+    done
 }
 
 ############################################

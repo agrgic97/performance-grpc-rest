@@ -6,6 +6,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
 
 @RestController
 @RequestMapping("/api/payload")
@@ -39,5 +40,21 @@ public class PayloadController {
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.IMAGE_PNG)
                 .body(assets.large());
+    }
+
+    @GetMapping(value = "/json/small", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<JsonNode> smallJson() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(assets.smallJson());
+    }
+
+    @GetMapping(value = "/json/medium", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<JsonNode> mediumJson() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(assets.mediumJson());
     }
 }

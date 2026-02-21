@@ -10,6 +10,9 @@ class PayloadAssetService {
         this.small = null;
         this.medium = null;
         this.large = null;
+
+        this.smallJson = null;
+        this.mediumJson = null;
     }
 
     load() {
@@ -18,6 +21,9 @@ class PayloadAssetService {
         this.small = fs.readFileSync(path.join(dir, "small_100b.json"));
         this.medium = fs.readFileSync(path.join(dir, "medium_50kb.json"));
         this.large = fs.readFileSync(path.join(dir, "large_2mb.png"));
+
+        this.smallJson = JSON.parse(this.small.toString());
+        this.mediumJson = JSON.parse(this.medium.toString());
 
         return this;
     }
@@ -30,6 +36,13 @@ class PayloadAssetService {
     }
     getLarge() {
         return this.large;
+    }
+
+    getSmallJson() {
+        return this.smallJson;
+    }
+    getMediumJson() {
+        return this.mediumJson;
     }
 }
 

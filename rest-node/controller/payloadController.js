@@ -21,6 +21,18 @@ function createPayloadController() {
             res.type("image/png");
             res.send(payloadAssetService.getLarge());
         },
+
+        smallJson(req, res) {
+            res.status(200);
+            res.type("application/json");
+            res.send(payloadAssetService.getSmallJson());
+        },
+
+        mediumJson(req, res) {
+            res.status(200);
+            res.type("application/json");
+            res.send(payloadAssetService.getMediumJson());
+        },
     };
 }
 

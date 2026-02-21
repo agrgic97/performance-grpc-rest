@@ -1,23 +1,13 @@
 import grpc from "k6/net/grpc";
 import { check, sleep } from "k6";
+import {buildOptions} from "./config/options.js";
 
 const client = new grpc.Client();
 client.load(["proto"], "payload.proto");
 
 const GRPC_ADDR = __ENV.GRPC_ADDR || "localhost:9090";
 
-export const options = {
-    scenarios: {
-        medium_only: {
-            executor: "ramping-vus",
-            startVUs: 0,
-            stages: [
-                { duration: "20s", target: 1000 },
-            ],
-            gracefulRampDown: "30s",
-        },
-    },
-};
+export const options = buildOptions("grpc-medium");
 
 export default function () {
     client.connect(GRPC_ADDR, { plaintext: true });
