@@ -6,11 +6,15 @@ const client = new grpc.Client();
 client.load(["proto"], "payload.proto");
 
 const GRPC_ADDR = __ENV.GRPC_ADDR || "localhost:9090";
+let connected = false;
 
 export const options = buildOptions("grpc-medium");
 
 export default function () {
-    client.connect(GRPC_ADDR, { plaintext: true });
+    if (!connected) {
+        client.connect(GRPC_ADDR, { plaintext: true });
+        connected = true;
+    }
 
     const res = client.invoke(
         "bench.payload.PayloadService/GetMedium",
@@ -21,6 +25,5 @@ export default function () {
         "status OK": (r) => r && r.status === grpc.StatusOK,
     });
 
-    client.close();
     sleep(1);
 }

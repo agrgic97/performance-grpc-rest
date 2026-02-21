@@ -39,8 +39,8 @@ export default function () {
     });
 
     stream.write({
-        payloadId: "large",
-        chunkSize: CHUNK_SIZE,
+        payload_id: "large",
+        chunk_size: CHUNK_SIZE,
     });
 
     stream.on('end', () => {

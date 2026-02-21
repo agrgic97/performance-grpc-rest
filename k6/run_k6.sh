@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MODE="${1:-rest}"     # rest | grpc
-TARGET="${2:-java}"   # java | node
-TEST="${3:-all}"      # z.B. small | medium | large | stream_large | all
-
+MODE="${1:-rest}"           # rest | grpc
+TARGET="${2:-java}"         # java | node
+TEST="${3:-all}"            # small | medium | large | stream_large | all
+DEPLOYMENT="${4:-local}"    # local | docker (default: local)
 
 OUT_DIR="results"
 mkdir -p "$OUT_DIR"
@@ -16,60 +16,82 @@ if ! command -v k6 >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ "$TARGET" = "java" ]; then
-  REST_BASE="http://localhost:8080"
-  GRPC_ADDR="localhost:9090"
-elif [ "$TARGET" = "node" ]; then
-  REST_BASE="http://localhost:3000"
-  GRPC_ADDR="localhost:4000"
+if [ "$DEPLOYMENT" = "docker" ]; then
+  if [ "$TARGET" = "java" ]; then
+    REST_BASE_DEFAULT="http://localhost:8081"
+    GRPC_ADDR_DEFAULT="localhost:9091"
+  elif [ "$TARGET" = "node" ]; then
+    REST_BASE_DEFAULT="http://localhost:3001"
+    GRPC_ADDR_DEFAULT="localhost:4001"
+  else
+    echo "ERROR: Unknown target '$TARGET'" >&2
+    exit 1
+  fi
+elif [ "$DEPLOYMENT" = "local" ]; then
+  if [ "$TARGET" = "java" ]; then
+    REST_BASE_DEFAULT="http://localhost:8080"
+    GRPC_ADDR_DEFAULT="localhost:9090"
+  elif [ "$TARGET" = "node" ]; then
+    REST_BASE_DEFAULT="http://localhost:3000"
+    GRPC_ADDR_DEFAULT="localhost:4000"
+  else
+    echo "ERROR: Unknown target '$TARGET'" >&2
+    exit 1
+  fi
 else
-  echo "ERROR: Unknown target '$TARGET'" >&2
+  echo "ERROR: Deployment must be 'docker' or 'local'" >&2
   exit 1
 fi
 
+REST_BASE="${REST_BASE:-$REST_BASE_DEFAULT}"
+GRPC_ADDR="${GRPC_ADDR:-$GRPC_ADDR_DEFAULT}"
+
 run_rest () {
   local name="$1"
-    local script="$2"
+  local script="$2"
 
-    local steps=(1 50 200 500 1000)
-    local duration="20s"
+  local steps=(1 50 200 500 1000)
+  local duration="20s"
 
-    for vus in "${steps[@]}"; do
-      echo "▶ REST $TARGET: $name (VUs=$vus)"
-      k6 run \
-        -e BASE_URL="$REST_BASE" \
-        -e VUS="$vus" \
-        -e DURATION="$duration" \
-        --summary-export="$OUT_DIR/rest_${TARGET}_${name}_${vus}vus_${TS}.json" \
-        "$script"
-    done
+  for vus in "${steps[@]}"; do
+    echo "▶ REST $TARGET/$DEPLOYMENT: $name (VUs=$vus)"
+    k6 run \
+      -e BASE_URL="$REST_BASE" \
+      -e VUS="$vus" \
+      -e DURATION="$duration" \
+      --summary-export="$OUT_DIR/rest_${TARGET}_${DEPLOYMENT}_${name}_${vus}vus_${TS}.json" \
+      "$script"
+  done
 }
 
 run_grpc () {
   local name="$1"
-    local script="$2"
-  
-    local steps=(1 50 200 500 1000)
-    local duration="20s"
+  local script="$2"
 
-    for vus in "${steps[@]}"; do
-      echo "▶ gRPC $TARGET: $name (VUs=$vus)"
-      k6 run \
-        -e GRPC_ADDR="$GRPC_ADDR" \
-        -e VUS="$vus" \
-        -e DURATION="$duration" \
-        --summary-export="$OUT_DIR/grpc_${TARGET}_${name}_${vus}vus_${TS}.json" \
-        "$script"
-    done
+  local steps=(1 50 200 500 1000)
+  local duration="20s"
+
+  for vus in "${steps[@]}"; do
+    echo "▶ gRPC $TARGET/$DEPLOYMENT: $name (VUs=$vus)"
+    k6 run \
+      -e GRPC_ADDR="$GRPC_ADDR" \
+      -e VUS="$vus" \
+      -e DURATION="$duration" \
+      --summary-export="$OUT_DIR/grpc_${TARGET}_${DEPLOYMENT}_${name}_${vus}vus_${TS}.json" \
+      "$script"
+  done
 }
 
 ############################################
 # Main
 ############################################
 echo "=========================================="
-echo " Mode   : $MODE"
-echo " Target : $TARGET"
-echo " Test   : $TEST"
+echo " Mode       : $MODE"
+echo " Target     : $TARGET"
+echo " Deployment : $DEPLOYMENT"
+echo " Test       : $TEST"
+echo " REST       : $REST_BASE"
+echo " gRPC       : $GRPC_ADDR"
 echo "=========================================="
 
 if [ "$MODE" = "rest" ]; then
@@ -80,7 +102,6 @@ if [ "$MODE" = "rest" ]; then
   else
     run_rest "$TEST" "k6/rest_${TEST}.js"
   fi
-
 elif [ "$MODE" = "grpc" ]; then
   if [ "$TEST" = "all" ]; then
     run_grpc small         "k6/grpc_small.js"
@@ -92,7 +113,6 @@ elif [ "$MODE" = "grpc" ]; then
   else
     run_grpc "$TEST" "k6/grpc_${TEST}.js"
   fi
-
 else
   echo "ERROR: Mode must be 'rest' or 'grpc'" >&2
   exit 1

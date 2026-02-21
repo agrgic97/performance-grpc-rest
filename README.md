@@ -101,18 +101,18 @@ Die Services sind unter folgenden Ports erreichbar:
 
 | Service | Port | URL |
 |---------|------|-----|
-| REST Spring Boot | 8080 | http://localhost:8080 |
-| REST Node.js | 8081 | http://localhost:8081 |
+| REST Spring Boot | 8081 | http://localhost:8081 |
+| REST Node.js | 3001 | http://localhost:3001 |
 | gRPC Spring Boot | 9091 | localhost:9091 |
-| gRPC Node.js | 9090 | localhost:9090 |
+| gRPC Node.js | 4001 | localhost:4001 |
 
 **REST Endpoints testen:**
 ```bash
 # Spring Boot
-curl http://localhost:8080/api/payload/small
+curl http://localhost:8081/api/payload/small
 
 # Node.js
-curl http://localhost:8081/api/payload/small
+curl http://localhost:3001/api/payload/small
 ```
 
 **gRPC Services testen (mit grpcurl):**
@@ -123,27 +123,40 @@ brew install grpcurl  # macOS
 go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 
 # Test
-grpcurl -plaintext localhost:9090 list
-grpcurl -plaintext localhost:9090 bench.payload.PayloadService/GetSmall
+grpcurl -plaintext localhost:4001 list
+grpcurl -plaintext localhost:4001 bench.payload.PayloadService/GetSmall
 ```
 
 ### 3. Lasttests ausführen
 
-Das `run_k6.sh` Skript führt die Tests gegen die laufenden Docker-Container aus:
+Das `run_k6.sh` Skript kann standardmäßig lokal laufende Services testen (default `local`) oder explizit gegen Docker-Container laufen:
 
 ```bash
 # REST Tests gegen Spring Boot (Java)
-./k6/run_k6.sh rest java
+./k6/run_k6.sh rest java all docker
 
 # REST Tests gegen Node.js
-./k6/run_k6.sh rest node
+./k6/run_k6.sh rest node all docker
 
 # gRPC Tests gegen Spring Boot (Java)
-./k6/run_k6.sh grpc java
+./k6/run_k6.sh grpc java all docker
 
 # gRPC Tests gegen Node.js
+./k6/run_k6.sh grpc node all docker
+```
+
+Default ohne 4. Parameter (lokale Services):
+
+```bash
+./k6/run_k6.sh rest java
 ./k6/run_k6.sh grpc node
 ```
+
+Parameter-Reihenfolge: `./k6/run_k6.sh <mode> <target> <test> <deployment>`
+- `mode`: `rest` oder `grpc`
+- `target`: `java` oder `node`
+- `test`: `small|medium|large|stream_small|stream_medium|stream_large|all`
+- `deployment`: `docker` oder `local` (optional, default: `local`)
 
 ### 4. Einzelne Tests ausführen
 
@@ -151,10 +164,16 @@ Einzelne K6-Skripte können auch direkt ausgeführt werden:
 
 ```bash
 # REST Small Payload Test
-k6 run -e BASE_URL="http://localhost:8080" k6/rest_small.js
+k6 run -e BASE_URL="http://localhost:8081" k6/rest_small.js
 
 # gRPC Medium Payload Test
-k6 run -e GRPC_ADDR="localhost:9090" k6/grpc_medium.js
+k6 run -e GRPC_ADDR="localhost:9091" k6/grpc_medium.js
+```
+
+Für lokale Dienste (ohne Docker-Port-Mapping) kannst du die Zieladressen überschreiben:
+
+```bash
+REST_BASE=http://localhost:8080 GRPC_ADDR=localhost:9090 ./k6/run_k6.sh grpc java small local
 ```
 
 ### 5. Services stoppen
@@ -190,7 +209,7 @@ npm install
 npm start
 ```
 
-Der Service läuft auf Port 9090.
+Der Service läuft auf Port 4000.
 
 ### REST Spring Boot Service
 
@@ -218,12 +237,12 @@ Nach dem Start der Services können die Tests wie oben beschrieben ausgeführt w
 
 ```bash
 # Für lokale Node.js Services
-./k6/run_k6.sh rest node
-./k6/run_k6.sh grpc node
+./k6/run_k6.sh rest node all local
+./k6/run_k6.sh grpc node all local
 
 # Für lokale Java Services
-./k6/run_k6.sh rest java
-./k6/run_k6.sh grpc java
+./k6/run_k6.sh rest java all local
+./k6/run_k6.sh grpc java all local
 ```
 
 ## 📊 Testszenarien
@@ -333,7 +352,7 @@ Stelle sicher, dass die Services laufen:
 docker-compose ps
 
 # Oder für lokale Services
-curl http://localhost:8080/api/payload/small
+curl http://localhost:3001/api/payload/small
 ```
 
 ### Docker Build Fehler
@@ -349,7 +368,7 @@ docker-compose up
 Prüfe, ob der gRPC-Service läuft und auf dem richtigen Port horcht:
 ```bash
 # Mit grpcurl testen
-grpcurl -plaintext localhost:9090 list
+grpcurl -plaintext localhost:4001 list
 
 # Logs prüfen
 docker-compose logs grpc-node
