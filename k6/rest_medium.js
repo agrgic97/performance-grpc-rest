@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import {buildOptions} from "./config/options.js";
 
 const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
@@ -16,6 +16,4 @@ export default function () {
             (r.headers["Content-Type"] || "").includes("application/json"),
         "body not empty": (r) => (r.body || "").length > 1000,
     });
-
-    sleep(1);
 }
