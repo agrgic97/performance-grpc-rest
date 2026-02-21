@@ -1,17 +1,24 @@
-const START_RATE = parseInt(__ENV.START_RATE || "10", 10);
-const TIME_UNIT = __ENV.TIME_UNIT || "1s";
-const STAGE_DURATION = __ENV.STAGE_DURATION || "20s";
-const PRE_ALLOCATED_VUS = parseInt(__ENV.PRE_ALLOCATED_VUS || "50", 10);
-const MAX_VUS = parseInt(__ENV.MAX_VUS || "2000", 10);
+const START_RATE = 0;
+const TIME_UNIT = "1s";
+const PRE_ALLOCATED_VUS = 50;
+const MAX_VUS = 2000;
+
+const STAGES = [
+    { target: 10, duration: "20s" },
+    { target: 50, duration: "20s" },
+    { target: 200, duration: "20s" },
+    { target: 500, duration: "20s" },
+    { target: 1000, duration: "20s" },
+];
 
 export function buildOptions(name = "run") {
     return {
         scenarios: {
             [name]: {
-                executor: "constant-arrival-rate",
-                rate: START_RATE,
+                executor: "ramp-arrival-rate",
+                startRate: START_RATE,
                 timeUnit: TIME_UNIT,
-                duration: STAGE_DURATION,
+                stages: STAGES,
                 preAllocatedVUs: PRE_ALLOCATED_VUS,
                 maxVUs: MAX_VUS,
             },

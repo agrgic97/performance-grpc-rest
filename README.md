@@ -247,7 +247,7 @@ Nach dem Start der Services können die Tests wie oben beschrieben ausgeführt w
 
 ## 📊 Testszenarien
 
-Alle Tests laufen in festen RPS-Stufen (constant arrival rate):
+Alle Tests laufen als Rampenprofil mit `ramp-arrival-rate` (inkl. hard-coded `stages`, `startRate`, `timeUnit`, `preAllocatedVUs`, `maxVUs` in `k6/config/options.js`):
 
 1. **Warm-up**: 10 RPS für 20s
 2. **Step 1**: 50 RPS für 20s
@@ -255,7 +255,7 @@ Alle Tests laufen in festen RPS-Stufen (constant arrival rate):
 4. **Step 3**: 500 RPS für 20s
 5. **Peak**: 1000 RPS für 20s
 
-**Gesamtdauer pro Testsuite**: ~100 Sekunden (5 einzelne Runs à 20s)
+**Gesamtdauer pro Testsuite**: ~100 Sekunden (ein Lauf mit 5 Rampenstufen à 20s)
 
 ### Payload-Größen
 

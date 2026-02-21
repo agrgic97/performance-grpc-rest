@@ -50,36 +50,22 @@ run_rest () {
   local name="$1"
   local script="$2"
 
-  local steps=(10 50 200 500 1000)
-  local duration="20s"
-
-  for rps in "${steps[@]}"; do
-    echo "▶ REST $TARGET/$DEPLOYMENT: $name (RPS=$rps)"
-    k6 run \
-      -e BASE_URL="$REST_BASE" \
-      -e START_RATE="$rps" \
-      -e STAGE_DURATION="$duration" \
-      --summary-export="$OUT_DIR/rest_${TARGET}_${DEPLOYMENT}_${name}_${rps}rps_${TS}.json" \
-      "$script"
-  done
+  echo "▶ REST $TARGET/$DEPLOYMENT: $name (ramp-arrival-rate profile)"
+  k6 run \
+    -e BASE_URL="$REST_BASE" \
+    --summary-export="$OUT_DIR/rest_${TARGET}_${DEPLOYMENT}_${name}_ramp_${TS}.json" \
+    "$script"
 }
 
 run_grpc () {
   local name="$1"
   local script="$2"
 
-  local steps=(10 50 200 500 1000)
-  local duration="20s"
-
-  for rps in "${steps[@]}"; do
-    echo "▶ gRPC $TARGET/$DEPLOYMENT: $name (RPS=$rps)"
-    k6 run \
-      -e GRPC_ADDR="$GRPC_ADDR" \
-      -e START_RATE="$rps" \
-      -e STAGE_DURATION="$duration" \
-      --summary-export="$OUT_DIR/grpc_${TARGET}_${DEPLOYMENT}_${name}_${rps}rps_${TS}.json" \
-      "$script"
-  done
+  echo "▶ gRPC $TARGET/$DEPLOYMENT: $name (ramp-arrival-rate profile)"
+  k6 run \
+    -e GRPC_ADDR="$GRPC_ADDR" \
+    --summary-export="$OUT_DIR/grpc_${TARGET}_${DEPLOYMENT}_${name}_ramp_${TS}.json" \
+    "$script"
 }
 
 ############################################
