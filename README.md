@@ -247,15 +247,15 @@ Nach dem Start der Services können die Tests wie oben beschrieben ausgeführt w
 
 ## 📊 Testszenarien
 
-Alle Tests verwenden das gleiche Ramping-Muster:
+Alle Tests laufen in festen RPS-Stufen (constant arrival rate):
 
-1. **Warm-up**: 0 → 50 VUs über 20s
-2. **Ramp-up 1**: 50 → 200 VUs über 20s
-3. **Ramp-up 2**: 200 → 500 VUs über 20s
-4. **Peak**: 500 → 1000 VUs über 20s
-5. **Ramp-down**: 1000 → 0 VUs über 20s
+1. **Warm-up**: 10 RPS für 20s
+2. **Step 1**: 50 RPS für 20s
+3. **Step 2**: 200 RPS für 20s
+4. **Step 3**: 500 RPS für 20s
+5. **Peak**: 1000 RPS für 20s
 
-**Gesamtdauer pro Test**: ~100 Sekunden
+**Gesamtdauer pro Testsuite**: ~100 Sekunden (5 einzelne Runs à 20s)
 
 ### Payload-Größen
 
@@ -312,6 +312,9 @@ k6 run -e GRPC_ADDR="example.com:9090" k6/grpc_small.js
 
 # Custom Endpoint Path
 k6 run -e PATH_SMALL="/custom/path" k6/rest_small.js
+
+# RPS, Stage-Dauer und VU-Pool steuern
+k6 run -e START_RATE="200" -e STAGE_DURATION="30s" -e PRE_ALLOCATED_VUS="100" -e MAX_VUS="4000" k6/rest_small.js
 ```
 
 ### Docker Resource Limits
