@@ -247,15 +247,18 @@ Nach dem Start der Services können die Tests wie oben beschrieben ausgeführt w
 
 ## 📊 Testszenarien
 
-Alle Tests laufen als Rampenprofil mit `ramp-arrival-rate` (inkl. hard-coded `stages`, `startRate`, `timeUnit`, `preAllocatedVUs`, `maxVUs` in `k6/config/options.js`):
+Alle Tests laufen mit `constant-arrival-rate` (konfiguriert in `k6/config/options.js`). Für jeden Testfall werden automatisch folgende Laststufen ausgeführt:
 
-1. **Warm-up**: 10 RPS für 20s
-2. **Step 1**: 50 RPS für 20s
-3. **Step 2**: 200 RPS für 20s
-4. **Step 3**: 500 RPS für 20s
-5. **Peak**: 1000 RPS für 20s
+1. **100 RPS** für 30s
+2. **1000 RPS** für 30s
+3. **5000 RPS** für 30s
+4. **10000 RPS** für 30s
+5. **50000 RPS** für 30s
+6. **100000 RPS** für 30s
 
-**Gesamtdauer pro Testsuite**: ~100 Sekunden (ein Lauf mit 5 Rampenstufen à 20s)
+`preAllocatedVUs` und `maxVUs` werden dabei abhängig von der gewählten RPS-Stufe gesetzt, damit die jeweilige Laststufe stabil gefahren werden kann.
+
+**Gesamtdauer pro Testsuite**: ~180 Sekunden pro Testfall (6 Laststufen à 30s)
 
 ### Payload-Größen
 
@@ -313,8 +316,8 @@ k6 run -e GRPC_ADDR="example.com:9090" k6/grpc_small.js
 # Custom Endpoint Path
 k6 run -e PATH_SMALL="/custom/path" k6/rest_small.js
 
-# RPS, Stage-Dauer und VU-Pool steuern
-k6 run -e START_RATE="200" -e STAGE_DURATION="30s" -e PRE_ALLOCATED_VUS="100" -e MAX_VUS="4000" k6/rest_small.js
+# Konstante Last und Testdauer steuern
+k6 run -e RPS="5000" -e TEST_DURATION="30s" k6/rest_small.js
 ```
 
 ### Docker Resource Limits

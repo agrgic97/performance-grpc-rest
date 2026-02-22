@@ -9,6 +9,9 @@ DEPLOYMENT="${4:-local}"    # local | docker (default: local)
 OUT_DIR="results"
 mkdir -p "$OUT_DIR"
 
+RPS_LEVELS=(100 1000 5000 10000 50000 100000)
+TEST_DURATION="${TEST_DURATION:-30s}"
+
 TS="$(date +%Y-%m-%d_%H-%M-%S)"
 
 if ! command -v k6 >/dev/null 2>&1; then
@@ -50,22 +53,30 @@ run_rest () {
   local name="$1"
   local script="$2"
 
-  echo "▶ REST $TARGET/$DEPLOYMENT: $name (ramp-arrival-rate profile)"
-  k6 run \
-    -e BASE_URL="$REST_BASE" \
-    --summary-export="$OUT_DIR/rest_${TARGET}_${DEPLOYMENT}_${name}_ramp_${TS}.json" \
-    "$script"
+  for rps in "${RPS_LEVELS[@]}"; do
+    echo "▶ REST $TARGET/$DEPLOYMENT: $name (${rps} RPS, constant-arrival-rate, ${TEST_DURATION})"
+    k6 run \
+      -e BASE_URL="$REST_BASE" \
+      -e RPS="$rps" \
+      -e TEST_DURATION="$TEST_DURATION" \
+      --summary-export="$OUT_DIR/rest_${TARGET}_${DEPLOYMENT}_${name}_${rps}rps_constant_${TS}.json" \
+      "$script"
+  done
 }
 
 run_grpc () {
   local name="$1"
   local script="$2"
 
-  echo "▶ gRPC $TARGET/$DEPLOYMENT: $name (ramp-arrival-rate profile)"
-  k6 run \
-    -e GRPC_ADDR="$GRPC_ADDR" \
-    --summary-export="$OUT_DIR/grpc_${TARGET}_${DEPLOYMENT}_${name}_ramp_${TS}.json" \
-    "$script"
+  for rps in "${RPS_LEVELS[@]}"; do
+    echo "▶ gRPC $TARGET/$DEPLOYMENT: $name (${rps} RPS, constant-arrival-rate, ${TEST_DURATION})"
+    k6 run \
+      -e GRPC_ADDR="$GRPC_ADDR" \
+      -e RPS="$rps" \
+      -e TEST_DURATION="$TEST_DURATION" \
+      --summary-export="$OUT_DIR/grpc_${TARGET}_${DEPLOYMENT}_${name}_${rps}rps_constant_${TS}.json" \
+      "$script"
+  done
 }
 
 ############################################
@@ -76,6 +87,8 @@ echo " Mode       : $MODE"
 echo " Target     : $TARGET"
 echo " Deployment : $DEPLOYMENT"
 echo " Test       : $TEST"
+echo " RPS-Levels : ${RPS_LEVELS[*]}"
+echo " Duration   : $TEST_DURATION"
 echo " REST       : $REST_BASE"
 echo " gRPC       : $GRPC_ADDR"
 echo "=========================================="
