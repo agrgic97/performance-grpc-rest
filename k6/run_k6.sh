@@ -5,7 +5,6 @@ MODE="${1:-rest}"     # rest | grpc
 TARGET="${2:-java}"   # java | node
 TEST="${3:-all}"      # z.B. small | medium | large | stream_large | all
 
-
 OUT_DIR="results"
 mkdir -p "$OUT_DIR"
 
@@ -29,38 +28,24 @@ fi
 
 run_rest () {
   local name="$1"
-    local script="$2"
+  local script="$2"
 
-    local steps=(1 50 200 500 1000)
-    local duration="20s"
-
-    for vus in "${steps[@]}"; do
-      echo "▶ REST $TARGET: $name (VUs=$vus)"
-      k6 run \
-        -e BASE_URL="$REST_BASE" \
-        -e VUS="$vus" \
-        -e DURATION="$duration" \
-        --summary-export="$OUT_DIR/rest_${TARGET}_${name}_${vus}vus_${TS}.json" \
-        "$script"
-    done
+  echo "▶ REST $TARGET: $name (constant-arrival-rate, 100 rps)"
+  k6 run \
+    -e BASE_URL="$REST_BASE" \
+    --summary-export="$OUT_DIR/rest_${TARGET}_${name}_100rps_${TS}.json" \
+    "$script"
 }
 
 run_grpc () {
   local name="$1"
-    local script="$2"
-  
-    local steps=(1 50 200 500 1000)
-    local duration="20s"
+  local script="$2"
 
-    for vus in "${steps[@]}"; do
-      echo "▶ gRPC $TARGET: $name (VUs=$vus)"
-      k6 run \
-        -e GRPC_ADDR="$GRPC_ADDR" \
-        -e VUS="$vus" \
-        -e DURATION="$duration" \
-        --summary-export="$OUT_DIR/grpc_${TARGET}_${name}_${vus}vus_${TS}.json" \
-        "$script"
-    done
+  echo "▶ gRPC $TARGET: $name (constant-arrival-rate, 100 rps)"
+  k6 run \
+    -e GRPC_ADDR="$GRPC_ADDR" \
+    --summary-export="$OUT_DIR/grpc_${TARGET}_${name}_100rps_${TS}.json" \
+    "$script"
 }
 
 ############################################

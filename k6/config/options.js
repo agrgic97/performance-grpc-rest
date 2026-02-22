@@ -1,14 +1,20 @@
-const VUS = parseInt(__ENV.VUS);
-const DURATION = __ENV.DURATION || "20s";
+const RATE = 100;
+const TIME_UNIT = "1s";
+const DURATION = "30s";
+const PRE_ALLOCATED_VUS = 120;
+const MAX_VUS = 300;
 
 export function buildOptions(name = "run") {
     return {
         scenarios: {
             [name]: {
-                executor: 'constant-vus',
-                vus: VUS,
+                executor: "constant-arrival-rate",
+                rate: RATE,
+                timeUnit: TIME_UNIT,
                 duration: DURATION,
-            }
-        }
-    }
- }
+                preAllocatedVUs: PRE_ALLOCATED_VUS,
+                maxVUs: MAX_VUS,
+            },
+        },
+    };
+}
