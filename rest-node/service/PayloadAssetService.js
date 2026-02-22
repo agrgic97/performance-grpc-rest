@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { SmallPayload, MediumPayload } = require("../model/payloadModels");
 
 class PayloadAssetService {
     constructor({ payloadDir } = {}) {
@@ -22,8 +23,8 @@ class PayloadAssetService {
         this.medium = fs.readFileSync(path.join(dir, "medium_50kb.json"));
         this.large = fs.readFileSync(path.join(dir, "large_2mb.png"));
 
-        this.smallJson = JSON.parse(this.small.toString());
-        this.mediumJson = JSON.parse(this.medium.toString());
+        this.smallJson = SmallPayload.fromJson(JSON.parse(this.small.toString()));
+        this.mediumJson = MediumPayload.fromJson(JSON.parse(this.medium.toString()));
 
         return this;
     }

@@ -2,8 +2,9 @@ package grgic.antonio.rest_spring_boot.service;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import grgic.antonio.rest_spring_boot.model.MediumPayload;
+import grgic.antonio.rest_spring_boot.model.SmallPayload;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.file.Files;
@@ -21,8 +22,8 @@ public class PayloadAssetService {
     private byte[] medium;
     private byte[] large;
 
-    private JsonNode smallJson;
-    private JsonNode mediumJson;
+    private SmallPayload smallJson;
+    private MediumPayload mediumJson;
 
     public PayloadAssetService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -36,14 +37,14 @@ public class PayloadAssetService {
         medium = Files.readAllBytes(dir.resolve("medium_50kb.json"));
         large  = Files.readAllBytes(dir.resolve("large_2mb.png"));
 
-        smallJson = objectMapper.readTree(small);
-        mediumJson = objectMapper.readTree(medium);
+        smallJson = objectMapper.readValue(small, SmallPayload.class);
+        mediumJson = objectMapper.readValue(medium, MediumPayload.class);
     }
 
     public byte[] small()  { return small; }
     public byte[] medium() { return medium; }
     public byte[] large()  { return large; }
 
-    public JsonNode smallJson() { return smallJson; }
-    public JsonNode mediumJson() { return mediumJson; }
+    public SmallPayload smallJson() { return smallJson; }
+    public MediumPayload mediumJson() { return mediumJson; }
 }
