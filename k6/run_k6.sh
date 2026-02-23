@@ -48,6 +48,28 @@ run_grpc () {
     "$script"
 }
 
+run_rest_payload_class () {
+  local payload_class="$1"
+
+  run_rest "$payload_class" "k6/rest_${payload_class}.js"
+
+  if [[ "$payload_class" =~ ^(small|medium)$ ]]; then
+    run_rest "json_${payload_class}" "k6/rest_${payload_class}_structured.js"
+  fi
+}
+
+run_grpc_payload_class () {
+  local payload_class="$1"
+
+  run_grpc "$payload_class" "k6/grpc_${payload_class}.js"
+
+  if [[ "$payload_class" =~ ^(small|medium)$ ]]; then
+    run_grpc "structured_${payload_class}" "k6/grpc_${payload_class}_structured.js"
+  fi
+
+  run_grpc "stream_${payload_class}" "k6/grpc_stream_${payload_class}.js"
+}
+
 ############################################
 # Main
 ############################################
@@ -59,21 +81,22 @@ echo "=========================================="
 
 if [ "$MODE" = "rest" ]; then
   if [ "$TEST" = "all" ]; then
-    run_rest small  "k6/rest_small.js"
-    run_rest medium "k6/rest_medium.js"
-    run_rest large  "k6/rest_large.js"
+    run_rest_payload_class small
+    run_rest_payload_class medium
+    run_rest_payload_class large
+  elif [[ "$TEST" =~ ^(small|medium|large)$ ]]; then
+    run_rest_payload_class "$TEST"
   else
     run_rest "$TEST" "k6/rest_${TEST}.js"
   fi
 
 elif [ "$MODE" = "grpc" ]; then
   if [ "$TEST" = "all" ]; then
-    run_grpc small         "k6/grpc_small.js"
-    run_grpc medium        "k6/grpc_medium.js"
-    run_grpc large         "k6/grpc_large.js"
-    run_grpc stream_small  "k6/grpc_stream_small.js"
-    run_grpc stream_medium "k6/grpc_stream_medium.js"
-    run_grpc stream_large  "k6/grpc_stream_large.js"
+    run_grpc_payload_class small
+    run_grpc_payload_class medium
+    run_grpc_payload_class large
+  elif [[ "$TEST" =~ ^(small|medium|large)$ ]]; then
+    run_grpc_payload_class "$TEST"
   else
     run_grpc "$TEST" "k6/grpc_${TEST}.js"
   fi
