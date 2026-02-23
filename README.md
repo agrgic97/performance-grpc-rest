@@ -143,6 +143,12 @@ Das `run_k6.sh` Skript führt die Tests gegen die laufenden Docker-Container aus
 
 # gRPC Tests gegen Node.js
 ./k6/run_k6.sh grpc node
+
+# REST small Payload-Klasse (inkl. /small und /json/small)
+./k6/run_k6.sh rest java small
+
+# gRPC small Payload-Klasse (inkl. GetSmall, GetSmallStructured, StreamSmall)
+./k6/run_k6.sh grpc java small
 ```
 
 ### 4. Einzelne Tests ausführen
@@ -224,11 +230,17 @@ Nach dem Start der Services können die Tests wie oben beschrieben ausgeführt w
 # Für lokale Java Services
 ./k6/run_k6.sh rest java
 ./k6/run_k6.sh grpc java
+
+# REST medium Payload-Klasse lokal (inkl. /medium und /json/medium)
+./k6/run_k6.sh rest node medium
+
+# gRPC medium Payload-Klasse lokal (inkl. GetMedium, GetMediumStructured, StreamMedium)
+./k6/run_k6.sh grpc node medium
 ```
 
 ## 📊 Testszenarien
 
-Alle Tests verwenden das gleiche Ramping-Muster:
+Alle K6-Skripte verwenden das gleiche Ramping-Muster:
 
 1. **Warm-up**: 0 → 50 VUs über 20s
 2. **Ramp-up 1**: 50 → 200 VUs über 20s
@@ -236,13 +248,40 @@ Alle Tests verwenden das gleiche Ramping-Muster:
 4. **Peak**: 500 → 1000 VUs über 20s
 5. **Ramp-down**: 1000 → 0 VUs über 20s
 
-**Gesamtdauer pro Test**: ~100 Sekunden
+**Gesamtdauer pro Szenario**: ~100 Sekunden
+
+### Welche Szenarien werden pro Aufruf ausgeführt?
+
+Die tatsächlichen Szenarien hängen von `MODE` und `TEST` in `./k6/run_k6.sh` ab:
+
+- `./k6/run_k6.sh rest <target> small`
+  - `rest_small.js` (`/api/payload/small`)
+  - `rest_small_structured.js` (`/api/payload/json/small`)
+- `./k6/run_k6.sh rest <target> medium`
+  - `rest_medium.js` (`/api/payload/medium`)
+  - `rest_medium_structured.js` (`/api/payload/json/medium`)
+- `./k6/run_k6.sh rest <target> large`
+  - `rest_large.js` (`/api/payload/large`)
+
+- `./k6/run_k6.sh grpc <target> small`
+  - `grpc_small.js` (`GetSmall`)
+  - `grpc_small_structured.js` (`GetSmallStructured`)
+  - `grpc_stream_small.js` (`StreamSmall`)
+- `./k6/run_k6.sh grpc <target> medium`
+  - `grpc_medium.js` (`GetMedium`)
+  - `grpc_medium_structured.js` (`GetMediumStructured`)
+  - `grpc_stream_medium.js` (`StreamMedium`)
+- `./k6/run_k6.sh grpc <target> large`
+  - `grpc_large.js` (`GetLarge`)
+  - `grpc_stream_large.js` (`StreamLarge`)
+
+`TEST=all` führt je Modus alle Payload-Klassen (`small`, `medium`, `large`) mit den oben genannten Szenarien aus.
 
 ### Payload-Größen
 
 - **Small**: ~100 Bytes JSON
 - **Medium**: ~50 KB JSON
-- **Large**: ~2 MB PNG Bild (Base64 encodiert in JSON Response)
+- **Large**: ~2 MB PNG Bild (binäre Bildantwort bei REST, Byte-Payload bei gRPC)
 
 ## 📈 Testergebnisse
 
@@ -251,9 +290,13 @@ Die Testergebnisse werden automatisch im `results/` Verzeichnis gespeichert:
 ```
 results/
 ├── rest_java_small_2025-12-31_12-00-16.json
+├── rest_java_json_small_2025-12-31_12-00-16.json
 ├── rest_java_medium_2025-12-31_12-00-16.json
+├── rest_java_json_medium_2025-12-31_12-00-16.json
 ├── rest_java_large_2025-12-31_12-00-16.json
 ├── grpc_node_small_2025-12-31_12-00-30.json
+├── grpc_node_structured_small_2025-12-31_12-00-30.json
+├── grpc_node_stream_small_2025-12-31_12-00-30.json
 └── ...
 ```
 
