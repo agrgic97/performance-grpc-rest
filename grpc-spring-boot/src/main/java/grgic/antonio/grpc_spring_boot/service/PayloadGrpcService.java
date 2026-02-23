@@ -1,10 +1,11 @@
 package grgic.antonio.grpc_spring_boot.service;
 
-import grgic.antonio.grpc_spring_boot.proto.*;
 import com.google.protobuf.ByteString;
-import net.devh.boot.grpc.server.service.GrpcService;
-
+import grgic.antonio.grpc_spring_boot.model.MediumPayloadItem;
+import grgic.antonio.grpc_spring_boot.model.SmallPayload;
+import grgic.antonio.grpc_spring_boot.proto.*;
 import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 @GrpcService
 public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBase {
@@ -40,6 +41,18 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
     }
 
     @Override
+    public void getSmallStructured(Empty req, StreamObserver<grgic.antonio.grpc_spring_boot.proto.SmallPayload> obs) {
+        obs.onNext(toSmallPayloadMessage(assets.smallObject()));
+        obs.onCompleted();
+    }
+
+    @Override
+    public void getMediumStructured(Empty req, StreamObserver<MediumPayload> obs) {
+        obs.onNext(toMediumPayloadMessage(assets.mediumObject()));
+        obs.onCompleted();
+    }
+
+    @Override
     public void streamSmall(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
         byte[] data = assets.small();
         streamPayloadInChunks(req, obs, data);
@@ -55,6 +68,33 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
     public void streamLarge(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
         byte[] data = assets.large();
         streamPayloadInChunks(req, obs, data);
+    }
+
+    private grgic.antonio.grpc_spring_boot.proto.SmallPayload toSmallPayloadMessage(SmallPayload payload) {
+        return grgic.antonio.grpc_spring_boot.proto.SmallPayload.newBuilder()
+                .setId(payload.id())
+                .setProtocol(payload.protocol())
+                .setService(payload.service())
+                .setPayloadType(payload.payloadType())
+                .setStatus(payload.status())
+                .setFixed(payload.fixed())
+                .build();
+    }
+
+    private MediumPayload toMediumPayloadMessage(grgic.antonio.grpc_spring_boot.model.MediumPayload payload) {
+        MediumPayload.Builder builder = MediumPayload.newBuilder()
+                .setPayloadType(payload.payloadType())
+                .setDescription(payload.description())
+                .setUnit(payload.unit());
+
+        for (MediumPayloadItem item : payload.items()) {
+            builder.addItems(grgic.antonio.grpc_spring_boot.proto.MediumPayloadItem.newBuilder()
+                    .setId(item.id())
+                    .setValue(item.value())
+                    .build());
+        }
+
+        return builder.build();
     }
 
     private void streamPayloadInChunks(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs, byte[] data) {
@@ -82,4 +122,3 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
         obs.onCompleted();
     }
 }
-
