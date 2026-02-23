@@ -25,8 +25,8 @@ public class PayloadAssetService {
     private SmallPayload smallJson;
     private MediumPayload mediumJson;
 
-    public PayloadAssetService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public PayloadAssetService() {
+        this.objectMapper = new ObjectMapper();
     }
 
     @PostConstruct

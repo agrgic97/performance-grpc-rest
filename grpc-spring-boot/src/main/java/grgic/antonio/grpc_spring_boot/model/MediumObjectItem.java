@@ -1,6 +1,6 @@
 package grgic.antonio.grpc_spring_boot.model;
 
-public record MediumPayloadItem(
+public record MediumObjectItem(
         int id,
         String value
 ) {

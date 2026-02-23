@@ -1,8 +1,9 @@
 package grgic.antonio.grpc_spring_boot.service;
 
 import com.google.protobuf.ByteString;
-import grgic.antonio.grpc_spring_boot.model.MediumPayloadItem;
-import grgic.antonio.grpc_spring_boot.model.SmallPayload;
+import grgic.antonio.grpc_spring_boot.model.MediumObject;
+import grgic.antonio.grpc_spring_boot.model.MediumObjectItem;
+import grgic.antonio.grpc_spring_boot.model.SmallObject;
 import grgic.antonio.grpc_spring_boot.proto.*;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -41,7 +42,7 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
     }
 
     @Override
-    public void getSmallStructured(Empty req, StreamObserver<grgic.antonio.grpc_spring_boot.proto.SmallPayload> obs) {
+    public void getSmallStructured(Empty req, StreamObserver<SmallPayload> obs) {
         obs.onNext(toSmallPayloadMessage(assets.smallObject()));
         obs.onCompleted();
     }
@@ -70,8 +71,8 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
         streamPayloadInChunks(req, obs, data);
     }
 
-    private grgic.antonio.grpc_spring_boot.proto.SmallPayload toSmallPayloadMessage(SmallPayload payload) {
-        return grgic.antonio.grpc_spring_boot.proto.SmallPayload.newBuilder()
+    private SmallPayload toSmallPayloadMessage(SmallObject payload) {
+        return SmallPayload.newBuilder()
                 .setId(payload.id())
                 .setProtocol(payload.protocol())
                 .setService(payload.service())
@@ -81,14 +82,14 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
                 .build();
     }
 
-    private MediumPayload toMediumPayloadMessage(grgic.antonio.grpc_spring_boot.model.MediumPayload payload) {
+    private MediumPayload toMediumPayloadMessage(MediumObject payload) {
         MediumPayload.Builder builder = MediumPayload.newBuilder()
                 .setPayloadType(payload.payloadType())
                 .setDescription(payload.description())
                 .setUnit(payload.unit());
 
-        for (MediumPayloadItem item : payload.items()) {
-            builder.addItems(grgic.antonio.grpc_spring_boot.proto.MediumPayloadItem.newBuilder()
+        for (MediumObjectItem item : payload.items()) {
+            builder.addItems(MediumPayloadItem.newBuilder()
                     .setId(item.id())
                     .setValue(item.value())
                     .build());

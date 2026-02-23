@@ -1,8 +1,8 @@
 package grgic.antonio.grpc_spring_boot.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import grgic.antonio.grpc_spring_boot.model.MediumPayload;
-import grgic.antonio.grpc_spring_boot.model.SmallPayload;
+import grgic.antonio.grpc_spring_boot.model.MediumObject;
+import grgic.antonio.grpc_spring_boot.model.SmallObject;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,11 @@ public class PayloadAssetService {
     private byte[] small;
     private byte[] medium;
     private byte[] large;
-    private SmallPayload smallObject;
-    private MediumPayload mediumObject;
+    private SmallObject smallObject;
+    private MediumObject mediumObject;
 
-    public PayloadAssetService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public PayloadAssetService() {
+        this.objectMapper = new ObjectMapper();
     }
 
     @PostConstruct
@@ -36,19 +36,19 @@ public class PayloadAssetService {
         medium = Files.readAllBytes(dir.resolve("medium_50kb.json"));
         large = Files.readAllBytes(dir.resolve("large_2mb.png"));
 
-        smallObject = objectMapper.readValue(small, SmallPayload.class);
-        mediumObject = objectMapper.readValue(medium, MediumPayload.class);
+        smallObject = objectMapper.readValue(small, SmallObject.class);
+        mediumObject = objectMapper.readValue(medium, MediumObject.class);
     }
 
     public byte[] small() { return small; }
     public byte[] medium() { return medium; }
     public byte[] large() { return large; }
 
-    public SmallPayload smallObject() {
+    public SmallObject smallObject() {
         return smallObject;
     }
 
-    public MediumPayload mediumObject() {
+    public MediumObject mediumObject() {
         return mediumObject;
     }
 }

@@ -1,6 +1,6 @@
 package grgic.antonio.grpc_spring_boot.model;
 
-public record SmallPayload(
+public record SmallObject(
         int id,
         String protocol,
         String service,
