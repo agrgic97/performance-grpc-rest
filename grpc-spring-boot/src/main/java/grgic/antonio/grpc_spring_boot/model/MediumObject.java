@@ -6,6 +6,7 @@ public record MediumObject(
         String payloadType,
         String description,
         String unit,
-        List<MediumObjectItem> items
+        List<MediumObjectItem> items,
+        String pad
 ) {
 }

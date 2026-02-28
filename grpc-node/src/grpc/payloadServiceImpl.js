@@ -49,6 +49,7 @@ function createPayloadServiceImpl(payloadAssetService) {
             description: payload.description,
             unit: payload.unit,
             items: payload.items,
+            pad: payload.pad,
         };
     }
 

@@ -37,6 +37,7 @@ message MediumPayload {
   string description = 2;
   string unit = 3;
   repeated MediumPayloadItem items = 4;
+  string pad = 5;
 }
 
 message PayloadResponse {

@@ -86,7 +86,8 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
         MediumPayload.Builder builder = MediumPayload.newBuilder()
                 .setPayloadType(payload.payloadType())
                 .setDescription(payload.description())
-                .setUnit(payload.unit());
+                .setUnit(payload.unit())
+                .setPad(payload.pad());
 
         for (MediumObjectItem item : payload.items()) {
             builder.addItems(MediumPayloadItem.newBuilder()
