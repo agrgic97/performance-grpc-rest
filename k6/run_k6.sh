@@ -4,6 +4,7 @@ set -euo pipefail
 MODE="${1:-rest}"     # rest | grpc
 TARGET="${2:-java}"   # java | node
 TEST="${3:-all}"      # z.B. small | medium | large | stream_large | all
+SERVICE_SOURCE="${4:-local}"  # local | docker
 
 OUT_DIR="results"
 mkdir -p "$OUT_DIR"
@@ -15,14 +16,30 @@ if ! command -v k6 >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ "$TARGET" = "java" ]; then
-  REST_BASE="http://localhost:8080"
-  GRPC_ADDR="localhost:9090"
-elif [ "$TARGET" = "node" ]; then
-  REST_BASE="http://localhost:3000"
-  GRPC_ADDR="localhost:4000"
+if [ "$SERVICE_SOURCE" = "local" ]; then
+  if [ "$TARGET" = "java" ]; then
+    REST_BASE="http://localhost:8080"
+    GRPC_ADDR="localhost:9090"
+  elif [ "$TARGET" = "node" ]; then
+    REST_BASE="http://localhost:3000"
+    GRPC_ADDR="localhost:4000"
+  else
+    echo "ERROR: Unknown target '$TARGET'" >&2
+    exit 1
+  fi
+elif [ "$SERVICE_SOURCE" = "docker" ]; then
+  if [ "$TARGET" = "java" ]; then
+    REST_BASE="http://localhost:8081"
+    GRPC_ADDR="localhost:9091"
+  elif [ "$TARGET" = "node" ]; then
+    REST_BASE="http://localhost:3001"
+    GRPC_ADDR="localhost:4001"
+  else
+    echo "ERROR: Unknown target '$TARGET'" >&2
+    exit 1
+  fi
 else
-  echo "ERROR: Unknown target '$TARGET'" >&2
+  echo "ERROR: Service source must be 'local' or 'docker'" >&2
   exit 1
 fi
 
@@ -33,7 +50,7 @@ run_rest () {
   echo "▶ REST $TARGET: $name (constant-arrival-rate, 100 rps)"
   k6 run \
     -e BASE_URL="$REST_BASE" \
-    --summary-export="$OUT_DIR/rest_${TARGET}_${name}_100rps_${TS}.json" \
+    --summary-export="$OUT_DIR/rest_${TARGET}_${SERVICE_SOURCE}_${name}_100rps_${TS}.json" \
     "$script"
 }
 
@@ -44,7 +61,7 @@ run_grpc () {
   echo "▶ gRPC $TARGET: $name (constant-arrival-rate, 100 rps)"
   k6 run \
     -e GRPC_ADDR="$GRPC_ADDR" \
-    --summary-export="$OUT_DIR/grpc_${TARGET}_${name}_100rps_${TS}.json" \
+    --summary-export="$OUT_DIR/grpc_${TARGET}_${SERVICE_SOURCE}_${name}_100rps_${TS}.json" \
     "$script"
 }
 
@@ -77,6 +94,9 @@ echo "=========================================="
 echo " Mode   : $MODE"
 echo " Target : $TARGET"
 echo " Test   : $TEST"
+echo " Source : $SERVICE_SOURCE"
+echo " REST   : $REST_BASE"
+echo " gRPC   : $GRPC_ADDR"
 echo "=========================================="
 
 if [ "$MODE" = "rest" ]; then
