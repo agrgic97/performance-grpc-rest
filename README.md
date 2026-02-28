@@ -129,26 +129,37 @@ grpcurl -plaintext localhost:9090 bench.payload.PayloadService/GetSmall
 
 ### 3. Lasttests ausführen
 
-Das `run_k6.sh` Skript führt die Tests gegen die laufenden Docker-Container aus:
+Das `run_k6.sh` Skript unterstützt jetzt beide Quellen für Services:
+
+- `local` (Default): nutzt lokal gestartete Services
+- `docker`: nutzt Services aus `docker-compose`
+
+Aufruf-Schema:
+
+```bash
+./k6/run_k6.sh <mode> <target> [test] [local|docker]
+```
+
+Beispiele für Docker-Services:
 
 ```bash
 # REST Tests gegen Spring Boot (Java)
-./k6/run_k6.sh rest java
+./k6/run_k6.sh rest java all docker
 
 # REST Tests gegen Node.js
-./k6/run_k6.sh rest node
+./k6/run_k6.sh rest node all docker
 
 # gRPC Tests gegen Spring Boot (Java)
-./k6/run_k6.sh grpc java
+./k6/run_k6.sh grpc java all docker
 
 # gRPC Tests gegen Node.js
-./k6/run_k6.sh grpc node
+./k6/run_k6.sh grpc node all docker
 
 # REST small Payload-Klasse (inkl. /small und /json/small)
-./k6/run_k6.sh rest java small
+./k6/run_k6.sh rest java small docker
 
 # gRPC small Payload-Klasse (inkl. GetSmall, GetSmallStructured, StreamSmall)
-./k6/run_k6.sh grpc java small
+./k6/run_k6.sh grpc java small docker
 ```
 
 ### 4. Einzelne Tests ausführen
@@ -196,7 +207,7 @@ npm install
 npm start
 ```
 
-Der Service läuft auf Port 9090.
+Der Service läuft auf Port 4000.
 
 ### REST Spring Boot Service
 
@@ -224,18 +235,18 @@ Nach dem Start der Services können die Tests wie oben beschrieben ausgeführt w
 
 ```bash
 # Für lokale Node.js Services
-./k6/run_k6.sh rest node
-./k6/run_k6.sh grpc node
+./k6/run_k6.sh rest node all local
+./k6/run_k6.sh grpc node all local
 
 # Für lokale Java Services
-./k6/run_k6.sh rest java
-./k6/run_k6.sh grpc java
+./k6/run_k6.sh rest java all local
+./k6/run_k6.sh grpc java all local
 
 # REST medium Payload-Klasse lokal (inkl. /medium und /json/medium)
-./k6/run_k6.sh rest node medium
+./k6/run_k6.sh rest node medium local
 
 # gRPC medium Payload-Klasse lokal (inkl. GetMedium, GetMediumStructured, StreamMedium)
-./k6/run_k6.sh grpc node medium
+./k6/run_k6.sh grpc node medium local
 ```
 
 ## 📊 Testszenarien
@@ -289,14 +300,14 @@ Die Testergebnisse werden automatisch im `results/` Verzeichnis gespeichert:
 
 ```
 results/
-├── rest_java_small_2025-12-31_12-00-16.json
-├── rest_java_json_small_2025-12-31_12-00-16.json
-├── rest_java_medium_2025-12-31_12-00-16.json
-├── rest_java_json_medium_2025-12-31_12-00-16.json
-├── rest_java_large_2025-12-31_12-00-16.json
-├── grpc_node_small_2025-12-31_12-00-30.json
-├── grpc_node_structured_small_2025-12-31_12-00-30.json
-├── grpc_node_stream_small_2025-12-31_12-00-30.json
+├── rest_java_local_small_100rps_2025-12-31_12-00-16.json
+├── rest_java_docker_json_small_100rps_2025-12-31_12-00-16.json
+├── rest_java_local_medium_100rps_2025-12-31_12-00-16.json
+├── rest_java_docker_json_medium_100rps_2025-12-31_12-00-16.json
+├── rest_java_local_large_100rps_2025-12-31_12-00-16.json
+├── grpc_node_local_small_100rps_2025-12-31_12-00-30.json
+├── grpc_node_docker_structured_small_100rps_2025-12-31_12-00-30.json
+├── grpc_node_local_stream_small_100rps_2025-12-31_12-00-30.json
 └── ...
 ```
 
@@ -312,13 +323,13 @@ Die JSON-Dateien enthalten detaillierte Metriken:
 **Beispiel-Analyse mit jq:**
 ```bash
 # Durchschnittliche Response Time anzeigen
-cat results/rest_java_small_*.json | jq '.metrics.http_req_duration.avg'
+cat results/rest_java_local_small_*.json | jq '.metrics.http_req_duration.avg'
 
 # Requests pro Sekunde
-cat results/rest_java_small_*.json | jq '.metrics.http_reqs.rate'
+cat results/rest_java_local_small_*.json | jq '.metrics.http_reqs.rate'
 
 # p95 Response Time
-cat results/rest_java_small_*.json | jq '.metrics.http_req_duration.p95'
+cat results/rest_java_local_small_*.json | jq '.metrics.http_req_duration.p95'
 ```
 
 ## 🔧 Konfiguration
