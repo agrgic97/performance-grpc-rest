@@ -1,9 +1,6 @@
 package grgic.antonio.grpc_spring_boot.service;
 
 import com.google.protobuf.ByteString;
-import grgic.antonio.grpc_spring_boot.model.MediumObject;
-import grgic.antonio.grpc_spring_boot.model.MediumObjectItem;
-import grgic.antonio.grpc_spring_boot.model.SmallObject;
 import grgic.antonio.grpc_spring_boot.proto.*;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -43,13 +40,13 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
 
     @Override
     public void getSmallStructured(Empty req, StreamObserver<SmallPayload> obs) {
-        obs.onNext(toSmallPayloadMessage(assets.smallObject()));
+        obs.onNext(assets.smallPayload());
         obs.onCompleted();
     }
 
     @Override
     public void getMediumStructured(Empty req, StreamObserver<MediumPayload> obs) {
-        obs.onNext(toMediumPayloadMessage(assets.mediumObject()));
+        obs.onNext(assets.mediumPayload());
         obs.onCompleted();
     }
 
@@ -69,34 +66,6 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
     public void streamLarge(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
         byte[] data = assets.large();
         streamPayloadInChunks(req, obs, data);
-    }
-
-    private SmallPayload toSmallPayloadMessage(SmallObject payload) {
-        return SmallPayload.newBuilder()
-                .setId(payload.id())
-                .setProtocol(payload.protocol())
-                .setService(payload.service())
-                .setPayloadType(payload.payloadType())
-                .setStatus(payload.status())
-                .setFixed(payload.fixed())
-                .build();
-    }
-
-    private MediumPayload toMediumPayloadMessage(MediumObject payload) {
-        MediumPayload.Builder builder = MediumPayload.newBuilder()
-                .setPayloadType(payload.payloadType())
-                .setDescription(payload.description())
-                .setUnit(payload.unit())
-                .setPad(payload.pad());
-
-        for (MediumObjectItem item : payload.items()) {
-            builder.addItems(MediumPayloadItem.newBuilder()
-                    .setId(item.id())
-                    .setValue(item.value())
-                    .build());
-        }
-
-        return builder.build();
     }
 
     private void streamPayloadInChunks(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs, byte[] data) {
