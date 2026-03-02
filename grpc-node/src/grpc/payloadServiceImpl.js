@@ -32,27 +32,6 @@ function createPayloadServiceImpl(payloadAssetService) {
         call.end();
     }
 
-    function toSmallPayloadMessage(payload) {
-        return {
-            id: payload.id,
-            protocol: payload.protocol,
-            service: payload.service,
-            payload_type: payload.payloadType,
-            status: payload.status,
-            fixed: payload.fixed,
-        };
-    }
-
-    function toMediumPayloadMessage(payload) {
-        return {
-            payload_type: payload.payloadType,
-            description: payload.description,
-            unit: payload.unit,
-            items: payload.items,
-            pad: payload.pad,
-        };
-    }
-
     return {
         GetSmall(call, callback) {
             callback(null, { payload: payloadAssetService.getSmall() });
@@ -67,11 +46,11 @@ function createPayloadServiceImpl(payloadAssetService) {
         },
 
         GetSmallStructured(call, callback) {
-            callback(null, toSmallPayloadMessage(payloadAssetService.getSmallObject()));
+            callback(null, payloadAssetService.getSmallStructured());
         },
 
         GetMediumStructured(call, callback) {
-            callback(null, toMediumPayloadMessage(payloadAssetService.getMediumObject()));
+            callback(null, payloadAssetService.getMediumStructured());
         },
 
         StreamSmall(call) {

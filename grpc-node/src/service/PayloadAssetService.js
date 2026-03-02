@@ -10,8 +10,8 @@ class PayloadAssetService {
         this.small = null;
         this.medium = null;
         this.large = null;
-        this.smallObject = null;
-        this.mediumObject = null;
+        this.smallStructured = null;
+        this.mediumStructured = null;
     }
 
     load() {
@@ -21,8 +21,20 @@ class PayloadAssetService {
         this.medium = fs.readFileSync(path.join(dir, "medium_50kb.json"));
         this.large = fs.readFileSync(path.join(dir, "large_2mb.png"));
 
-        this.smallObject = JSON.parse(this.small.toString("utf8"));
-        this.mediumObject = JSON.parse(this.medium.toString("utf8"));
+        const smallObject = JSON.parse(this.small.toString("utf8"));
+        const mediumObject = JSON.parse(this.medium.toString("utf8"));
+
+        this.smallStructured = {
+            ...smallObject,
+            payload_type: smallObject.payloadType,
+        };
+        delete this.smallStructured.payloadType;
+
+        this.mediumStructured = {
+            ...mediumObject,
+            payload_type: mediumObject.payloadType,
+        };
+        delete this.mediumStructured.payloadType;
 
         return this;
     }
@@ -39,12 +51,12 @@ class PayloadAssetService {
         return this.large;
     }
 
-    getSmallObject() {
-        return this.smallObject;
+    getSmallStructured() {
+        return this.smallStructured;
     }
 
-    getMediumObject() {
-        return this.mediumObject;
+    getMediumStructured() {
+        return this.mediumStructured;
     }
 }
 
