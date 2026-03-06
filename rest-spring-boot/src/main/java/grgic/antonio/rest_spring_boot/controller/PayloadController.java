@@ -35,11 +35,11 @@ public class PayloadController {
                 .body(assets.medium());
     }
 
-    @GetMapping(value = "/large", produces = MediaType.IMAGE_PNG_VALUE)
+    @GetMapping(value = "/large", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<byte[]> large() {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.IMAGE_PNG)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(assets.large());
     }
 

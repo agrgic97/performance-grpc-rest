@@ -18,7 +18,7 @@ function createPayloadController() {
 
         large(req, res) {
             res.status(200);
-            res.type("image/png");
+            res.type("application/json");
             res.send(payloadAssetService.getLarge());
         },
 

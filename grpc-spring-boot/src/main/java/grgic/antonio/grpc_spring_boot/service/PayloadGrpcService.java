@@ -47,19 +47,19 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
 
     @Override
     public void streamSmall(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.small().getPayload().toByteArray();
+        byte[] data = assets.smallBytes();
         streamPayloadInChunks(req, obs, data);
     }
 
     @Override
     public void streamMedium(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.medium().getPayload().toByteArray();
+        byte[] data = assets.mediumBytes();
         streamPayloadInChunks(req, obs, data);
     }
 
     @Override
     public void streamLarge(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.large().getPayload().toByteArray();
+        byte[] data = assets.largeBytes();
         streamPayloadInChunks(req, obs, data);
     }
 

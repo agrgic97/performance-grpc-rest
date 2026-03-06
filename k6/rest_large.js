@@ -12,8 +12,8 @@ export default function () {
 
     check(res, {
         "status 200": (r) => r.status === 200,
-        "content-type image": (r) =>
-            (r.headers["Content-Type"] || "").startsWith("image/"),
+        "content-type json": (r) =>
+            (r.headers["Content-Type"] || "").includes("application/json"),
         "body not empty": (r) => (r.body || "").length > 10000,
     });
 
