@@ -21,8 +21,8 @@ class PayloadAssetService {
         this.medium = fs.readFileSync(path.join(dir, "medium_50kb.json"));
         this.large = fs.readFileSync(path.join(dir, "large_2mb.png"));
 
-        this.smallObject = JSON.parse(this.small.toString("utf8"));
-        this.mediumObject = JSON.parse(this.medium.toString("utf8"));
+        this.smallObject = JSON.parse(this.small.toString());
+        this.mediumObject = JSON.parse(this.medium.toString());
 
         return this;
     }
@@ -40,11 +40,33 @@ class PayloadAssetService {
     }
 
     getSmallObject() {
-        return this.smallObject;
+        return this.toSmallPayloadMessage(this.smallObject);
     }
 
     getMediumObject() {
-        return this.mediumObject;
+        return this.toMediumPayloadMessage(this.mediumObject);
+    }
+
+
+    toSmallPayloadMessage(payload) {
+        return {
+            id: payload.id,
+            protocol: payload.protocol,
+            service: payload.service,
+            payload_type: payload.payloadType,
+            status: payload.status,
+            fixed: payload.fixed,
+        };
+    }
+
+    toMediumPayloadMessage(payload) {
+        return {
+            payload_type: payload.payloadType,
+            description: payload.description,
+            unit: payload.unit,
+            items: payload.items,
+            pad: payload.pad,
+        };
     }
 }
 

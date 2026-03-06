@@ -1,102 +1,66 @@
 package grgic.antonio.grpc_spring_boot.service;
 
 import com.google.protobuf.ByteString;
-import grgic.antonio.grpc_spring_boot.model.MediumObject;
-import grgic.antonio.grpc_spring_boot.model.MediumObjectItem;
-import grgic.antonio.grpc_spring_boot.model.SmallObject;
 import grgic.antonio.grpc_spring_boot.proto.*;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @GrpcService
 public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBase {
 
     private final PayloadAssetService assets;
 
-    public PayloadGrpcService(PayloadAssetService assets) {
+    public PayloadGrpcService(@Autowired PayloadAssetService assets) {
         this.assets = assets;
     }
 
     @Override
     public void getSmall(Empty req, StreamObserver<PayloadResponse> obs) {
-        obs.onNext(PayloadResponse.newBuilder()
-                .setPayload(ByteString.copyFrom(assets.small()))
-                .build());
+        obs.onNext(assets.small());
         obs.onCompleted();
     }
 
     @Override
     public void getMedium(Empty req, StreamObserver<PayloadResponse> obs) {
-        obs.onNext(PayloadResponse.newBuilder()
-                .setPayload(ByteString.copyFrom(assets.medium()))
-                .build());
+        obs.onNext(assets.medium());
         obs.onCompleted();
     }
 
     @Override
     public void getLarge(Empty req, StreamObserver<PayloadResponse> obs) {
-        obs.onNext(PayloadResponse.newBuilder()
-                .setPayload(ByteString.copyFrom(assets.large()))
-                .build());
+        obs.onNext(assets.large());
         obs.onCompleted();
     }
 
     @Override
     public void getSmallStructured(Empty req, StreamObserver<SmallPayload> obs) {
-        obs.onNext(toSmallPayloadMessage(assets.smallObject()));
+        obs.onNext(assets.smallObject());
         obs.onCompleted();
     }
 
     @Override
     public void getMediumStructured(Empty req, StreamObserver<MediumPayload> obs) {
-        obs.onNext(toMediumPayloadMessage(assets.mediumObject()));
+        obs.onNext(assets.mediumObject());
         obs.onCompleted();
     }
 
     @Override
     public void streamSmall(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.small();
+        byte[] data = assets.small().getPayload().toByteArray();
         streamPayloadInChunks(req, obs, data);
     }
 
     @Override
     public void streamMedium(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.medium();
+        byte[] data = assets.medium().getPayload().toByteArray();
         streamPayloadInChunks(req, obs, data);
     }
 
     @Override
     public void streamLarge(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.large();
+        byte[] data = assets.large().getPayload().toByteArray();
         streamPayloadInChunks(req, obs, data);
-    }
-
-    private SmallPayload toSmallPayloadMessage(SmallObject payload) {
-        return SmallPayload.newBuilder()
-                .setId(payload.id())
-                .setProtocol(payload.protocol())
-                .setService(payload.service())
-                .setPayloadType(payload.payloadType())
-                .setStatus(payload.status())
-                .setFixed(payload.fixed())
-                .build();
-    }
-
-    private MediumPayload toMediumPayloadMessage(MediumObject payload) {
-        MediumPayload.Builder builder = MediumPayload.newBuilder()
-                .setPayloadType(payload.payloadType())
-                .setDescription(payload.description())
-                .setUnit(payload.unit())
-                .setPad(payload.pad());
-
-        for (MediumObjectItem item : payload.items()) {
-            builder.addItems(MediumPayloadItem.newBuilder()
-                    .setId(item.id())
-                    .setValue(item.value())
-                    .build());
-        }
-
-        return builder.build();
     }
 
     private void streamPayloadInChunks(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs, byte[] data) {

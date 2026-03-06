@@ -1,8 +1,14 @@
 package grgic.antonio.grpc_spring_boot.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.ByteString;
 import grgic.antonio.grpc_spring_boot.model.MediumObject;
+import grgic.antonio.grpc_spring_boot.model.MediumObjectItem;
 import grgic.antonio.grpc_spring_boot.model.SmallObject;
+import grgic.antonio.grpc_spring_boot.proto.MediumPayload;
+import grgic.antonio.grpc_spring_boot.proto.MediumPayloadItem;
+import grgic.antonio.grpc_spring_boot.proto.PayloadResponse;
+import grgic.antonio.grpc_spring_boot.proto.SmallPayload;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,8 +27,8 @@ public class PayloadAssetService {
     private byte[] small;
     private byte[] medium;
     private byte[] large;
-    private SmallObject smallObject;
-    private MediumObject mediumObject;
+    private SmallPayload smallPayload;
+    private MediumPayload mediumPayload;
 
     public PayloadAssetService() {
         this.objectMapper = new ObjectMapper();
@@ -36,19 +42,56 @@ public class PayloadAssetService {
         medium = Files.readAllBytes(dir.resolve("medium_50kb.json"));
         large = Files.readAllBytes(dir.resolve("large_2mb.png"));
 
-        smallObject = objectMapper.readValue(small, SmallObject.class);
-        mediumObject = objectMapper.readValue(medium, MediumObject.class);
+        SmallObject smallObject  = objectMapper.readValue(small, SmallObject.class);
+        MediumObject mediumObject  = objectMapper.readValue(medium, MediumObject.class);
+
+        smallPayload = toSmallPayloadMessage(smallObject);
+        mediumPayload = toMediumPayloadMessage(mediumObject);
     }
 
-    public byte[] small() { return small; }
-    public byte[] medium() { return medium; }
-    public byte[] large() { return large; }
+    public PayloadResponse small() { return toPayloadResponse(small); }
+    public PayloadResponse medium() { return toPayloadResponse(medium); }
+    public PayloadResponse large() { return toPayloadResponse(large); }
 
-    public SmallObject smallObject() {
-        return smallObject;
+    public SmallPayload smallObject() {
+        return this.smallPayload;
     }
 
-    public MediumObject mediumObject() {
-        return mediumObject;
+    public MediumPayload mediumObject() {
+        return this.mediumPayload;
+    }
+
+    private SmallPayload toSmallPayloadMessage(SmallObject payload) {
+        return SmallPayload.newBuilder()
+                .setId(payload.id())
+                .setProtocol(payload.protocol())
+                .setService(payload.service())
+                .setPayloadType(payload.payloadType())
+                .setStatus(payload.status())
+                .setFixed(payload.fixed())
+                .build();
+    }
+
+    private MediumPayload toMediumPayloadMessage(MediumObject payload) {
+        MediumPayload.Builder builder = MediumPayload.newBuilder()
+                .setPayloadType(payload.payloadType())
+                .setDescription(payload.description())
+                .setUnit(payload.unit())
+                .setPad(payload.pad());
+
+        for (MediumObjectItem item : payload.items()) {
+            builder.addItems(MediumPayloadItem.newBuilder()
+                    .setId(item.id())
+                    .setValue(item.value())
+                    .build());
+        }
+
+        return builder.build();
+    }
+
+    private PayloadResponse toPayloadResponse(byte[] payload) {
+        return PayloadResponse.newBuilder()
+                .setPayload(ByteString.copyFrom(payload))
+                .build();
     }
 }
