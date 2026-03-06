@@ -1,4 +1,4 @@
-const RATE = 1;
+const RATE = 100;
 const TIME_UNIT = "1s";
 const DURATION = "30s";
 const PRE_ALLOCATED_VUS = 120;
