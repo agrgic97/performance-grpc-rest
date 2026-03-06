@@ -2,10 +2,10 @@ package grgic.antonio.grpc_spring_boot.model;
 
 import java.util.List;
 
-public record MediumObject(
+public record LargeObject(
         String payloadType,
         String description,
         String unit,
-        List<MediumObjectItem> items
+        List<MediumObject> items
 ) {
 }

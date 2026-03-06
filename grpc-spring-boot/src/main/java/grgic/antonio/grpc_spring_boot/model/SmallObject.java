@@ -7,5 +7,4 @@ public record SmallObject(
         String payloadType,
         String status,
         boolean fixed
-) {
-}
+) {}

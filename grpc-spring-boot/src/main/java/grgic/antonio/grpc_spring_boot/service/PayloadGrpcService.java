@@ -1,6 +1,5 @@
 package grgic.antonio.grpc_spring_boot.service;
 
-import com.google.protobuf.ByteString;
 import grgic.antonio.grpc_spring_boot.proto.*;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -46,45 +45,8 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
     }
 
     @Override
-    public void streamSmall(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.smallBytes();
-        streamPayloadInChunks(req, obs, data);
-    }
-
-    @Override
-    public void streamMedium(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.mediumBytes();
-        streamPayloadInChunks(req, obs, data);
-    }
-
-    @Override
-    public void streamLarge(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs) {
-        byte[] data = assets.largeBytes();
-        streamPayloadInChunks(req, obs, data);
-    }
-
-    private void streamPayloadInChunks(ChunkRequest req, StreamObserver<ChunkPayloadResponse> obs, byte[] data) {
-        int chunkSize = req.getChunkSize();
-
-        if (chunkSize <= 0) {
-            obs.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withDescription("chunkSize must be > 0")
-                    .asRuntimeException());
-            return;
-        }
-
-        int seq = 0;
-        for (int offset = 0; offset < data.length; offset += chunkSize) {
-            int len = Math.min(chunkSize, data.length - offset);
-            ByteString bs = ByteString.copyFrom(data, offset, len);
-
-            obs.onNext(ChunkPayloadResponse.newBuilder()
-                    .setPayloadId(req.getPayloadId())
-                    .setSeq(seq++)
-                    .setData(bs)
-                    .setEof(offset + len >= data.length)
-                    .build());
-        }
+    public void getLargeStructured(Empty req, StreamObserver<LargePayload> obs) {
+        obs.onNext(assets.largeObject());
         obs.onCompleted();
     }
 }

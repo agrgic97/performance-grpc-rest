@@ -11,6 +11,7 @@ service PayloadService {
   rpc GetLarge  (Empty) returns (PayloadResponse);
   rpc GetSmallStructured (Empty) returns (SmallPayload);
   rpc GetMediumStructured (Empty) returns (MediumPayload);
+  rpc GetLargeStructured (Empty) returns (LargePayload);
   rpc StreamSmall(ChunkRequest) returns (stream ChunkPayloadResponse);
   rpc StreamMedium(ChunkRequest) returns (stream ChunkPayloadResponse);
   rpc StreamLarge(ChunkRequest) returns (stream ChunkPayloadResponse);
@@ -29,7 +30,7 @@ message SmallPayload {
 
 message MediumPayloadItem {
   int32 id = 1;
-  string value = 2;
+  int32 value = 2;
 }
 
 message MediumPayload {
@@ -37,7 +38,13 @@ message MediumPayload {
   string description = 2;
   string unit = 3;
   repeated MediumPayloadItem items = 4;
-  string pad = 5;
+}
+
+message LargePayload {
+  string payload_type = 1;
+  string description = 2;
+  string unit = 3;
+  repeated MediumPayload items = 4;
 }
 
 message PayloadResponse {

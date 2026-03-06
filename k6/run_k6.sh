@@ -69,10 +69,8 @@ run_rest_payload_class () {
   local payload_class="$1"
 
   run_rest "$payload_class" "k6/rest_${payload_class}.js"
+  run_rest "json_${payload_class}" "k6/rest_${payload_class}_structured.js"
 
-  if [[ "$payload_class" =~ ^(small|medium)$ ]]; then
-    run_rest "json_${payload_class}" "k6/rest_${payload_class}_structured.js"
-  fi
 }
 
 run_grpc_payload_class () {
@@ -80,11 +78,7 @@ run_grpc_payload_class () {
 
   run_grpc "$payload_class" "k6/grpc_${payload_class}.js"
 
-  if [[ "$payload_class" =~ ^(small|medium)$ ]]; then
-    run_grpc "structured_${payload_class}" "k6/grpc_${payload_class}_structured.js"
-  fi
-
-  run_grpc "stream_${payload_class}" "k6/grpc_stream_${payload_class}.js"
+  run_grpc "structured_${payload_class}" "k6/grpc_${payload_class}_structured.js"
 }
 
 ############################################

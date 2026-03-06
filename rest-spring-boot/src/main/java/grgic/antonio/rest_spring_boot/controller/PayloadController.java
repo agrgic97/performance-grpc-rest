@@ -1,5 +1,6 @@
 package grgic.antonio.rest_spring_boot.controller;
 
+import grgic.antonio.rest_spring_boot.model.LargePayload;
 import grgic.antonio.rest_spring_boot.model.MediumPayload;
 import grgic.antonio.rest_spring_boot.model.SmallPayload;
 import grgic.antonio.rest_spring_boot.service.PayloadAssetService;
@@ -57,5 +58,13 @@ public class PayloadController {
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(assets.mediumJson());
+    }
+
+    @GetMapping(value = "/json/large", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LargePayload> largeJson() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(assets.largeJson());
     }
 }

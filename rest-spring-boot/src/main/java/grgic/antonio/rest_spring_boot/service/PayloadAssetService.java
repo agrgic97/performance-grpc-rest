@@ -1,24 +1,18 @@
 package grgic.antonio.rest_spring_boot.service;
 
+import grgic.antonio.rest_spring_boot.model.LargePayload;
 import grgic.antonio.rest_spring_boot.model.MediumPayload;
-import grgic.antonio.rest_spring_boot.model.MediumPayloadItem;
 import grgic.antonio.rest_spring_boot.model.SmallPayload;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 @Service
 public class PayloadAssetService {
 
-    private static final int ONE_GIB = 1024 * 1024 * 1024;
-    private static final int FIFTY_KIB = 50 * 1024;
-
-    @Value("${bench.large-json-size-bytes:1073741824}")
-    private int largeJsonSizeBytes;
+    private final ObjectMapper objectMapper;
 
     private byte[] small;
     private byte[] medium;
@@ -26,15 +20,21 @@ public class PayloadAssetService {
 
     private SmallPayload smallJson;
     private MediumPayload mediumJson;
+    private LargePayload largeJson;
+
+    public PayloadAssetService() {
+        this.objectMapper = new ObjectMapper();
+    }
 
     @PostConstruct
     public void load() {
-        this.smallJson = createSmallPayloadObject();
-        this.mediumJson = createMediumPayloadObject(FIFTY_KIB);
+        this.small = generateSmallJsonBytes();
+        this.medium = generateMediumJsonBytes();
+        this.large = generateLargeJsonBytes();
 
-        this.small = toJson(smallJson);
-        this.medium = toJson(mediumJson);
-        this.large = generateLargeJsonBytes(largeJsonSizeBytes > 0 ? largeJsonSizeBytes : ONE_GIB);
+        this.smallJson = createSmallPayloadObject(this.small);
+        this.mediumJson = createMediumPayloadObject(this.medium);
+        this.largeJson = createLargePayloadObject(this.large);
     }
 
     public byte[] small() {
@@ -57,136 +57,74 @@ public class PayloadAssetService {
         return mediumJson;
     }
 
-    private SmallPayload createSmallPayloadObject() {
-        return new SmallPayload(1, "REST", "payload-service", "small", "ok", true);
+    public LargePayload largeJson() {
+        return largeJson;
     }
 
-    private MediumPayload createMediumPayloadObject(int targetBytes) {
-        List<MediumPayloadItem> items = new ArrayList<>(512);
-        for (int i = 0; i < 512; i++) {
-            items.add(new MediumPayloadItem(i + 1, String.valueOf((i + 1) * 1001)));
-        }
-
-        String payloadType = "medium";
-        String description = "Generated medium JSON payload";
-        String unit = "bytes";
-
-        int baseSize = estimateMediumBaseJsonSize(payloadType, description, unit, items);
-        int padLen = Math.max(0, targetBytes - baseSize - 10); // ,"pad":""
-
-        return new MediumPayload(payloadType, description, unit, items, "7".repeat(padLen));
+    private SmallPayload createSmallPayloadObject(byte[] bytes) {
+        return objectMapper.readValue(bytes, SmallPayload.class);
     }
 
-    private int estimateMediumBaseJsonSize(String payloadType, String description, String unit, List<MediumPayloadItem> items) {
-        int size = "{\"payloadType\":\"\",\"description\":\"\",\"unit\":\"\",\"items\":[]}".length();
-        size += payloadType.length() + description.length() + unit.length();
-
-        for (int i = 0; i < items.size(); i++) {
-            MediumPayloadItem item = items.get(i);
-            size += "{\"id\":,\"value\":\"\"}".length();
-            size += String.valueOf(item.id()).length();
-            size += item.value().length();
-            if (i > 0) {
-                size += 1; // comma between items
-            }
-        }
-
-        return size;
+    private MediumPayload createMediumPayloadObject(byte[] bytes) {
+        return objectMapper.readValue(bytes, MediumPayload.class);
     }
 
-    private byte[] generateLargeJsonBytes(int targetBytes) {
-        String prefix = "{\"payloadType\":\"large\",\"description\":\"Generated 1GiB numeric JSON payload\",\"unit\":\"numbers\",\"numbers\":[";
-        String suffix = "]}";
-
-        byte[] prefixBytes = prefix.getBytes(StandardCharsets.US_ASCII);
-        byte[] suffixBytes = suffix.getBytes(StandardCharsets.US_ASCII);
-
-        if (targetBytes <= prefixBytes.length + suffixBytes.length + 1) {
-            throw new IllegalArgumentException("large JSON size too small for valid payload");
-        }
-
-        byte[] out = new byte[targetBytes];
-        int offset = 0;
-
-        System.arraycopy(prefixBytes, 0, out, offset, prefixBytes.length);
-        offset += prefixBytes.length;
-
-        String standardNumber = "1234567890";
-        byte[] stdNumBytes = standardNumber.getBytes(StandardCharsets.US_ASCII);
-        byte[] stdNumCommaBytes = ("," + standardNumber).getBytes(StandardCharsets.US_ASCII);
-
-        boolean firstNumber = true;
-        while (offset + stdNumCommaBytes.length + suffixBytes.length < targetBytes) {
-            byte[] chunk = firstNumber ? stdNumBytes : stdNumCommaBytes;
-            System.arraycopy(chunk, 0, out, offset, chunk.length);
-            offset += chunk.length;
-            firstNumber = false;
-        }
-
-        int remaining = targetBytes - offset - suffixBytes.length;
-        if (remaining <= 0) {
-            throw new IllegalStateException("could not fit final numeric token");
-        }
-
-        if (firstNumber) {
-            for (int i = 0; i < remaining; i++) {
-                out[offset++] = '9';
-            }
-        } else {
-            if (remaining < 2) {
-                throw new IllegalStateException("remaining space too small for comma + number token");
-            }
-            out[offset++] = ',';
-            for (int i = 0; i < remaining - 1; i++) {
-                out[offset++] = '9';
-            }
-        }
-
-        System.arraycopy(suffixBytes, 0, out, offset, suffixBytes.length);
-        offset += suffixBytes.length;
-
-        if (offset != targetBytes) {
-            throw new IllegalStateException("generated JSON size mismatch");
-        }
-
-        return out;
+    private LargePayload createLargePayloadObject(byte[] bytes) {
+        return objectMapper.readValue(bytes, LargePayload.class);
     }
 
-    private byte[] toJson(SmallPayload payload) {
-        String json = "{"
-                + "\"id\":" + payload.id() + ","
-                + "\"protocol\":\"" + payload.protocol() + "\"," 
-                + "\"service\":\"" + payload.service() + "\"," 
-                + "\"payloadType\":\"" + payload.payloadType() + "\"," 
-                + "\"status\":\"" + payload.status() + "\"," 
-                + "\"fixed\":" + payload.fixed()
-                + "}";
-        return json.getBytes(StandardCharsets.UTF_8);
+    private byte[] generateSmallJsonBytes() {
+        ObjectNode json = objectMapper.createObjectNode();
+
+        json.put("id", 1);
+        json.put("protocol", "http");
+        json.put("service", "benchmark-service");
+        json.put("payloadType", "small");
+        json.put("status", "ok");
+        json.put("fixed", true);
+
+        return objectMapper.writeValueAsBytes(json);
     }
 
-    private byte[] toJson(MediumPayload payload) {
-        StringBuilder sb = new StringBuilder();
-        sb.append('{')
-                .append("\"payloadType\":\"").append(payload.payloadType()).append("\",")
-                .append("\"description\":\"").append(payload.description()).append("\",")
-                .append("\"unit\":\"").append(payload.unit()).append("\",")
-                .append("\"items\":[");
+    private byte[] generateMediumJsonBytes() {
+        return objectMapper.writeValueAsBytes(generateMediumJsonNode());
+    }
 
-        for (int i = 0; i < payload.items().size(); i++) {
-            MediumPayloadItem item = payload.items().get(i);
-            if (i > 0) {
-                sb.append(',');
-            }
-            sb.append('{')
-                    .append("\"id\":").append(item.id()).append(',')
-                    .append("\"value\":\"").append(item.value()).append("\"")
-                    .append('}');
+    private byte[] generateLargeJsonBytes() {
+        ObjectNode json = objectMapper.createObjectNode();
+
+        json.put("payloadType", "large");
+        json.put("description", "Generated large JSON payload");
+        json.put("unit", "bytes");
+
+        ArrayNode items = json.putArray("items");
+
+        for (int i = 0; i < 20; i++) {
+            ObjectNode entry = generateMediumJsonNode();
+
+            items.add(entry);
         }
 
-        sb.append("],")
-                .append("\"pad\":\"").append(payload.pad()).append("\"")
-                .append('}');
+        return objectMapper.writeValueAsBytes(json);
+    }
 
-        return sb.toString().getBytes(StandardCharsets.UTF_8);
+    private ObjectNode generateMediumJsonNode() {
+        ObjectNode json = objectMapper.createObjectNode();
+
+        json.put("payloadType", "medium");
+        json.put("description", "Generated medium JSON payload");
+        json.put("unit", "bytes");
+
+        ArrayNode items = json.putArray("items");
+
+        for (int i = 0; i < 2000; i++) {
+            ObjectNode entry = objectMapper.createObjectNode();
+            entry.put("id", i);
+            entry.put("value", i * 10_000_000);
+
+            items.add(entry);
+        }
+
+        return json;
     }
 }
