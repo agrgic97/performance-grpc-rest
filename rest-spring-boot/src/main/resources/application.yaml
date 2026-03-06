@@ -7,4 +7,4 @@ spring:
     serialization:
       indent_output: false
 bench:
-  payloads-dir: ${PAYLOADS_DIR:../performance-grpc-rest/payloads}
+  large-json-size-bytes: ${LARGE_JSON_SIZE_BYTES:1073741824}

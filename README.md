@@ -8,7 +8,7 @@ Das Projekt enthält:
 - **REST APIs**: Spring Boot (Java) und Express (Node.js)
 - **gRPC Services**: Spring Boot (Java) und Node.js
 - **Lasttests**: K6-Skripte für verschiedene Payload-Größen
-- **Test-Payloads**: Small (100B), Medium (50KB), Large (2MB)
+- **Test-Payloads**: Small (100B), Medium (50KB), Large (1GiB JSON)
 
 ## 🏗️ Projektstruktur
 
@@ -25,10 +25,7 @@ performance-grpc-rest/
 │   ├── grpc_small.js
 │   ├── grpc_medium.js
 │   └── run_k6.sh        # Hauptskript zum Ausführen der Tests
-├── payloads/             # Test-Daten
-│   ├── small_100b.json
-│   ├── medium_50kb.json
-│   └── large_2mb.png
+├── payloads/             # Legacy Test-Daten (optional)
 ├── results/              # Testergebnisse (JSON)
 └── docker-compose.yml    # Docker-Konfiguration
 ```
