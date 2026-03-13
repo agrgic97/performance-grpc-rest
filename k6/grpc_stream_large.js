@@ -1,58 +1,39 @@
-import grpc from "k6/net/grpc";
+import { Client, Stream } from "k6/net/grpc";
 import { check, sleep } from "k6";
-import {buildOptions} from "./config/options.js";
+import { Trend, Counter } from "k6/metrics";
+import { buildOptions } from "./config/options.js";
 
-const client = new grpc.Client();
+const client = new Client();
 client.load(["proto"], "payload.proto");
 
-const GRPC_ADDR = __ENV.GRPC_ADDR || "localhost:9090";
-
-const CHUNK_SIZE = parseInt(__ENV.CHUNK_SIZE || "200000", 10);
+const GRPC_ADDR = __ENV.BASE_URL;
 
 export const options = buildOptions("grpc-stream-large");
 
 export default function () {
-    if(__ITER === 0) {
-        client.connect(GRPC_ADDR, { plaintext: true });
-    }
+    client.connect(GRPC_ADDR, { plaintext: true });
 
-    let bytes = 0;
-    let chunks = 0;
-    let sawEof = false;
-    let streamError = null;
+    let messageCount = 0;
 
-    const stream = new grpc.Stream(client, "bench.payload.PayloadService/StreamLarge");
+    const stream = new Stream(client, "bench.payload.PayloadService/StreamLarge", { discardResponseMessage: true });
 
-    stream.on("data", (msg) => {
-        if (msg && msg.data) {
-            bytes += msg.data.length || 0;
-        }
-        chunks += 1;
-
-        if (msg && msg.eof === true) {
-            sawEof = true;
-        }
+    stream.on("data", function () {
+        messageCount++;
     });
 
-    stream.on("error", (e) => {
-        streamError = e;
+    stream.on("error", function (e) {
+        console.error("Stream error: " + JSON.stringify(e));
     });
 
-    stream.write({
-        payloadId: "large",
-        chunkSize: CHUNK_SIZE,
-    });
-
-    stream.on('end', () => {
+    stream.on("end", function () {
         check(null, {
-            "stream had no error": () => streamError === null,
-            "received at least 1 chunk": () => chunks > 0,
-            "received some bytes": () => bytes > 0,
-            "saw eof marker": () => sawEof === true,
+            "received exactly 10 messages": () => messageCount === 10,
         });
+
+        client.close();
     });
 
-    stream.end();
+    stream.write({});
 
     sleep(1);
 }

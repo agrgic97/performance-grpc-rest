@@ -1,8 +1,8 @@
-const RATE = 100;
+const RATE = 1;
 const TIME_UNIT = "1s";
-const DURATION = "30s";
-const PRE_ALLOCATED_VUS = 120;
-const MAX_VUS = 500;
+const DURATION = "1s";
+const PRE_ALLOCATED_VUS = 3200;
+const MAX_VUS = 20000;
 
 export function buildOptions(name = "run") {
     return {

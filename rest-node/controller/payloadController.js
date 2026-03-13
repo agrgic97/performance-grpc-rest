@@ -7,31 +7,19 @@ function createPayloadController() {
         small(req, res) {
             res.status(200);
             res.type("application/json");
-            res.send(payloadAssetService.getSmall());
+            res.send(payloadAssetService.getSmallObject());
         },
 
         medium(req, res) {
             res.status(200);
             res.type("application/json");
-            res.send(payloadAssetService.getMedium());
+            res.send(payloadAssetService.getMediumObject());
         },
 
         large(req, res) {
             res.status(200);
             res.type("application/json");
-            res.send(payloadAssetService.getLarge());
-        },
-
-        smallJson(req, res) {
-            res.status(200);
-            res.type("application/json");
-            res.send(payloadAssetService.getSmallJson());
-        },
-
-        mediumJson(req, res) {
-            res.status(200);
-            res.type("application/json");
-            res.send(payloadAssetService.getMediumJson());
+            res.send(payloadAssetService.getLargeObject());
         },
     };
 }

@@ -1,130 +1,78 @@
 package grgic.antonio.rest_spring_boot.service;
 
-import grgic.antonio.rest_spring_boot.model.LargePayload;
-import grgic.antonio.rest_spring_boot.model.MediumPayload;
-import grgic.antonio.rest_spring_boot.model.SmallPayload;
+import grgic.antonio.rest_spring_boot.model.LargeObject;
+import grgic.antonio.rest_spring_boot.model.MediumObject;
+import grgic.antonio.rest_spring_boot.model.SmallObject;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PayloadAssetService {
-
-    private final ObjectMapper objectMapper;
-
-    private byte[] small;
-    private byte[] medium;
-    private byte[] large;
-
-    private SmallPayload smallJson;
-    private MediumPayload mediumJson;
-    private LargePayload largeJson;
-
-    public PayloadAssetService() {
-        this.objectMapper = new ObjectMapper();
-    }
+    private SmallObject smallObject;
+    private MediumObject mediumObject;
+    private LargeObject largeObject;
 
     @PostConstruct
     public void load() {
-        this.small = generateSmallJsonBytes();
-        this.medium = generateMediumJsonBytes();
-        this.large = generateLargeJsonBytes();
-
-        this.smallJson = createSmallPayloadObject(this.small);
-        this.mediumJson = createMediumPayloadObject(this.medium);
-        this.largeJson = createLargePayloadObject(this.large);
+        this.smallObject = generateSmallObject();
+        this.mediumObject = generateMediumObject();
+        this.largeObject = generateLargeObject();
     }
 
-    public byte[] small() {
-        return small;
+    private SmallObject generateSmallObject() {
+        return SmallObject.builder()
+                .id(1)
+                .payloadType("small")
+                .protocol("http")
+                .service("benchmark-service")
+                .status("ok")
+                .fixed(true)
+                .build();
     }
 
-    public byte[] medium() {
-        return medium;
-    }
+    private MediumObject generateMediumObject() {
+        MediumObject.MediumObjectBuilder builder = MediumObject.builder()
+                .payloadType("medium")
+                .unit("POJO")
+                .description("Generated medium JSON payload");
 
-    public byte[] large() {
-        return large;
-    }
+        List<Integer> items = new ArrayList<>();
 
-    public SmallPayload smallJson() {
-        return smallJson;
-    }
-
-    public MediumPayload mediumJson() {
-        return mediumJson;
-    }
-
-    public LargePayload largeJson() {
-        return largeJson;
-    }
-
-    private SmallPayload createSmallPayloadObject(byte[] bytes) {
-        return objectMapper.readValue(bytes, SmallPayload.class);
-    }
-
-    private MediumPayload createMediumPayloadObject(byte[] bytes) {
-        return objectMapper.readValue(bytes, MediumPayload.class);
-    }
-
-    private LargePayload createLargePayloadObject(byte[] bytes) {
-        return objectMapper.readValue(bytes, LargePayload.class);
-    }
-
-    private byte[] generateSmallJsonBytes() {
-        ObjectNode json = objectMapper.createObjectNode();
-
-        json.put("id", 1);
-        json.put("protocol", "http");
-        json.put("service", "benchmark-service");
-        json.put("payloadType", "small");
-        json.put("status", "ok");
-        json.put("fixed", true);
-
-        return objectMapper.writeValueAsBytes(json);
-    }
-
-    private byte[] generateMediumJsonBytes() {
-        return objectMapper.writeValueAsBytes(generateMediumJsonNode());
-    }
-
-    private byte[] generateLargeJsonBytes() {
-        ObjectNode json = objectMapper.createObjectNode();
-
-        json.put("payloadType", "large");
-        json.put("description", "Generated large JSON payload");
-        json.put("unit", "bytes");
-
-        ArrayNode items = json.putArray("items");
-
-        for (int i = 0; i < 20; i++) {
-            ObjectNode entry = generateMediumJsonNode();
-
-            items.add(entry);
+        for (int i = 0; i < 40_000; i++) {
+            items.add(i + 10_000_000);
         }
 
-        return objectMapper.writeValueAsBytes(json);
+        builder.items(items);
+
+        return builder.build();
     }
 
-    private ObjectNode generateMediumJsonNode() {
-        ObjectNode json = objectMapper.createObjectNode();
+    private LargeObject generateLargeObject() {
+        LargeObject.LargeObjectBuilder builder = LargeObject.builder();
 
-        json.put("payloadType", "medium");
-        json.put("description", "Generated medium JSON payload");
-        json.put("unit", "bytes");
+        List<MediumObject> items = new ArrayList<>();
 
-        ArrayNode items = json.putArray("items");
-
-        for (int i = 0; i < 2000; i++) {
-            ObjectNode entry = objectMapper.createObjectNode();
-            entry.put("id", i);
-            entry.put("value", i * 10_000_000);
-
-            items.add(entry);
+        for (int i = 0; i < 10; i++) {
+            items.add(generateMediumObject());
         }
 
-        return json;
+        builder.items(items);
+
+        return builder.build();
+    }
+
+    public SmallObject small() {
+        return this.smallObject;
+    }
+
+    public MediumObject medium() {
+        return this.mediumObject;
+    }
+
+    public LargeObject large() {
+        return this.largeObject;
     }
 }

@@ -1,6 +1,7 @@
 package grgic.antonio.grpc_spring_boot.service;
 
-import grgic.antonio.grpc_spring_boot.proto.*;
+import grgic.antonio.grpc_codegen.proto.*;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,38 +16,36 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
     }
 
     @Override
-    public void getSmall(Empty req, StreamObserver<PayloadResponse> obs) {
-        obs.onNext(assets.small());
-        obs.onCompleted();
-    }
-
-    @Override
-    public void getMedium(Empty req, StreamObserver<PayloadResponse> obs) {
-        obs.onNext(assets.medium());
-        obs.onCompleted();
-    }
-
-    @Override
-    public void getLarge(Empty req, StreamObserver<PayloadResponse> obs) {
-        obs.onNext(assets.large());
-        obs.onCompleted();
-    }
-
-    @Override
-    public void getSmallStructured(Empty req, StreamObserver<SmallPayload> obs) {
+    public void getSmall(Empty req, StreamObserver<SmallPayload> obs) {
         obs.onNext(assets.smallObject());
         obs.onCompleted();
     }
 
     @Override
-    public void getMediumStructured(Empty req, StreamObserver<MediumPayload> obs) {
+    public void getMedium(Empty req, StreamObserver<MediumPayload> obs) {
         obs.onNext(assets.mediumObject());
         obs.onCompleted();
     }
 
     @Override
-    public void getLargeStructured(Empty req, StreamObserver<LargePayload> obs) {
+    public void getLarge(Empty req, StreamObserver<LargePayload> obs) {
         obs.onNext(assets.largeObject());
+        obs.onCompleted();
+    }
+
+    @Override
+    public void getLargeCompressed(Empty req, StreamObserver<LargePayload> obs) {
+        ServerCallStreamObserver<LargePayload> serverObs = (ServerCallStreamObserver<LargePayload>) obs;
+        serverObs.setCompression("gzip");
+        serverObs.onNext(assets.largeObject());
+        serverObs.onCompleted();
+    }
+
+    @Override
+    public void streamLarge(Empty req, StreamObserver<MediumPayload> obs) {
+        for (MediumPayload item : assets.largeObject().getItemsList()) {
+            obs.onNext(item);
+        }
         obs.onCompleted();
     }
 }

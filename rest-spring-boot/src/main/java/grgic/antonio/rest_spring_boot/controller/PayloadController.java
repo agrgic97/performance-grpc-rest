@@ -1,13 +1,11 @@
 package grgic.antonio.rest_spring_boot.controller;
 
-import grgic.antonio.rest_spring_boot.model.LargePayload;
-import grgic.antonio.rest_spring_boot.model.MediumPayload;
-import grgic.antonio.rest_spring_boot.model.SmallPayload;
+import grgic.antonio.rest_spring_boot.model.LargeObject;
+import grgic.antonio.rest_spring_boot.model.MediumObject;
+import grgic.antonio.rest_spring_boot.model.SmallObject;
 import grgic.antonio.rest_spring_boot.service.PayloadAssetService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,50 +19,17 @@ public class PayloadController {
     }
 
     @GetMapping(value = "/small", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> small() {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(assets.small());
+    public SmallObject small() {
+        return assets.small();
     }
 
     @GetMapping(value = "/medium", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> medium() {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(assets.medium());
+    public MediumObject medium() {
+        return assets.medium();
     }
 
     @GetMapping(value = "/large", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> large() {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(assets.large());
-    }
-
-    @GetMapping(value = "/json/small", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SmallPayload> smallJson() {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(assets.smallJson());
-    }
-
-    @GetMapping(value = "/json/medium", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediumPayload> mediumJson() {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(assets.mediumJson());
-    }
-
-    @GetMapping(value = "/json/large", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LargePayload> largeJson() {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(assets.largeJson());
+    public LargeObject large() {
+        return assets.large();
     }
 }

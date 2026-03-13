@@ -6,7 +6,7 @@ TARGET="${2:-java}"   # java | node
 TEST="${3:-all}"      # z.B. small | medium | large | stream_large | all
 SERVICE_SOURCE="${4:-local}"  # local | docker
 
-OUT_DIR="results"
+OUT_DIR="k6/results"
 mkdir -p "$OUT_DIR"
 
 TS="$(date +%Y-%m-%d_%H-%M-%S)"
@@ -50,7 +50,7 @@ run_rest () {
   echo "▶ REST $TARGET: $name (constant-arrival-rate, 100 rps)"
   k6 run \
     -e BASE_URL="$REST_BASE" \
-    --summary-export="$OUT_DIR/rest_${TARGET}_${SERVICE_SOURCE}_${name}_100rps_${TS}.json" \
+    --summary-export="$OUT_DIR/rest_${TARGET}_${SERVICE_SOURCE}_${name}_${TS}.json" \
     "$script"
 }
 
@@ -60,8 +60,8 @@ run_grpc () {
 
   echo "▶ gRPC $TARGET: $name (constant-arrival-rate, 100 rps)"
   k6 run \
-    -e GRPC_ADDR="$GRPC_ADDR" \
-    --summary-export="$OUT_DIR/grpc_${TARGET}_${SERVICE_SOURCE}_${name}_100rps_${TS}.json" \
+    -e BASE_URL="$GRPC_ADDR" \
+    --summary-export="$OUT_DIR/grpc_${TARGET}_${SERVICE_SOURCE}_${name}_${TS}.json" \
     "$script"
 }
 
@@ -69,16 +69,12 @@ run_rest_payload_class () {
   local payload_class="$1"
 
   run_rest "$payload_class" "k6/rest_${payload_class}.js"
-  run_rest "json_${payload_class}" "k6/rest_${payload_class}_structured.js"
-
 }
 
 run_grpc_payload_class () {
   local payload_class="$1"
 
   run_grpc "$payload_class" "k6/grpc_${payload_class}.js"
-
-  run_grpc "structured_${payload_class}" "k6/grpc_${payload_class}_structured.js"
 }
 
 ############################################
@@ -109,8 +105,10 @@ elif [ "$MODE" = "grpc" ]; then
     run_grpc_payload_class small
     run_grpc_payload_class medium
     run_grpc_payload_class large
-  elif [[ "$TEST" =~ ^(small|medium|large)$ ]]; then
-    run_grpc_payload_class "$TEST"
+    run_grpc_payload_class large_gzip
+    run_grpc stream_large "k6/grpc_stream_large.js"
+  elif [[ "$TEST" =~ ^(small|medium|large|large_compressed|stream_large)$ ]]; then
+    run_grpc "$TEST" "k6/grpc_${TEST}.js"
   else
     run_grpc "$TEST" "k6/grpc_${TEST}.js"
   fi

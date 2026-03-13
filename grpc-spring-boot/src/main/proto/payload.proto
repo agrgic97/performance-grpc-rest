@@ -2,19 +2,15 @@ syntax = "proto3";
 package bench.payload;
 
 option java_multiple_files = true;
-option java_package = "grgic.antonio.grpc_spring_boot.proto";
+option java_package = "grgic.antonio.grpc_codegen.proto";
 option java_outer_classname = "PayloadProto";
 
 service PayloadService {
-  rpc GetSmall  (Empty) returns (PayloadResponse);
-  rpc GetMedium (Empty) returns (PayloadResponse);
-  rpc GetLarge  (Empty) returns (PayloadResponse);
-  rpc GetSmallStructured (Empty) returns (SmallPayload);
-  rpc GetMediumStructured (Empty) returns (MediumPayload);
-  rpc GetLargeStructured (Empty) returns (LargePayload);
-  rpc StreamSmall(ChunkRequest) returns (stream ChunkPayloadResponse);
-  rpc StreamMedium(ChunkRequest) returns (stream ChunkPayloadResponse);
-  rpc StreamLarge(ChunkRequest) returns (stream ChunkPayloadResponse);
+  rpc GetSmall              (Empty) returns (SmallPayload);
+  rpc GetMedium             (Empty) returns (MediumPayload);
+  rpc GetLarge              (Empty) returns (LargePayload);
+  rpc GetLargeCompressed    (Empty) returns (LargePayload);
+  rpc StreamLarge           (Empty) returns (stream MediumPayload);
 }
 
 message Empty {}
@@ -28,37 +24,13 @@ message SmallPayload {
   bool fixed = 6;
 }
 
-message MediumPayloadItem {
-  int32 id = 1;
-  int32 value = 2;
-}
-
 message MediumPayload {
   string payload_type = 1;
   string description = 2;
   string unit = 3;
-  repeated MediumPayloadItem items = 4;
+  repeated int32 items = 4;
 }
 
 message LargePayload {
-  string payload_type = 1;
-  string description = 2;
-  string unit = 3;
-  repeated MediumPayload items = 4;
-}
-
-message PayloadResponse {
-  bytes payload = 1;
-}
-
-message ChunkPayloadResponse {
-  string payload_id = 1;
-  int32 seq = 2;
-  bytes data = 3;
-  bool eof = 4;
-}
-
-message ChunkRequest {
-  string payload_id = 1;
-  int32 chunk_size = 2;
+  repeated MediumPayload items = 1;
 }
