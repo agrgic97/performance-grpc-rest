@@ -1,7 +1,7 @@
 import grpc from "k6/net/grpc";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import { Trend } from "k6/metrics";
-import {buildOptions} from "./config/options.js";
+import { buildOptions } from "./config/options.js";
 
 const client = new grpc.Client();
 client.load(["proto"], "payload.proto");
@@ -34,5 +34,4 @@ export default function () {
     }
 
     client.close();
-    sleep(1);
 }

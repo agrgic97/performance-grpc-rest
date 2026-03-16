@@ -3,13 +3,115 @@ package grgic.antonio.rest_spring_boot.model;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @Builder
 public class SmallObject {
-    int id;
-    String protocol;
-    String service;
-    String payloadType;
-    String status;
-    boolean fixed;
+    // 65 integer fields
+    int intVal1;
+    int intVal2;
+    int intVal3;
+    int intVal4;
+    int intVal5;
+    int intVal6;
+    int intVal7;
+    int intVal8;
+    int intVal9;
+    int intVal10;
+    int intVal11;
+    int intVal12;
+    int intVal13;
+    int intVal14;
+    int intVal15;
+    int intVal16;
+    int intVal17;
+    int intVal18;
+    int intVal19;
+    int intVal20;
+    int intVal21;
+    int intVal22;
+    int intVal23;
+    int intVal24;
+    int intVal25;
+    int intVal26;
+    int intVal27;
+    int intVal28;
+    int intVal29;
+    int intVal30;
+    int intVal31;
+    int intVal32;
+    int intVal33;
+    int intVal34;
+    int intVal35;
+    int intVal36;
+    int intVal37;
+    int intVal38;
+    int intVal39;
+    int intVal40;
+    int intVal41;
+    int intVal42;
+    int intVal43;
+    int intVal44;
+    int intVal45;
+    int intVal46;
+    int intVal47;
+    int intVal48;
+    int intVal49;
+    int intVal50;
+    int intVal51;
+    int intVal52;
+    int intVal53;
+    int intVal54;
+    int intVal55;
+    int intVal56;
+    int intVal57;
+    int intVal58;
+    int intVal59;
+    int intVal60;
+    int intVal61;
+    int intVal62;
+    int intVal63;
+    int intVal64;
+    int intVal65;
+    // 15 string fields
+    String strVal1;
+    String strVal2;
+    String strVal3;
+    String strVal4;
+    String strVal5;
+    String strVal6;
+    String strVal7;
+    String strVal8;
+    String strVal9;
+    String strVal10;
+    String strVal11;
+    String strVal12;
+    String strVal13;
+    String strVal14;
+    String strVal15;
+    // 10 enum fields
+    String enumVal1;
+    String enumVal2;
+    String enumVal3;
+    String enumVal4;
+    String enumVal5;
+    String enumVal6;
+    String enumVal7;
+    String enumVal8;
+    String enumVal9;
+    String enumVal10;
+    // 7 small int arrays
+    List<Integer> intArr1;
+    List<Integer> intArr2;
+    List<Integer> intArr3;
+    List<Integer> intArr4;
+    List<Integer> intArr5;
+    List<Integer> intArr6;
+    List<Integer> intArr7;
+    // 2 small string arrays
+    List<String> strArr1;
+    List<String> strArr2;
+    // 1 small enum array
+    List<String> enumArr1;
 }

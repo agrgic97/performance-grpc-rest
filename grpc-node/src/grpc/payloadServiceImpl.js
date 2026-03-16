@@ -24,9 +24,8 @@ function createPayloadServiceImpl(payloadAssetService) {
         },
 
         StreamLarge(call) {
-            const items = payloadAssetService.getLargeObject().items;
-            for (const item of items) {
-                call.write(item);
+            for (let i = 0; i < 10; i++) {
+                call.write(payloadAssetService.getMediumObject());
             }
             call.end();
         },

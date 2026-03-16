@@ -1,6 +1,6 @@
 spring:
   application:
     name: grpc-spring-boot
-grpc:
-  server:
-    port: ${PORT:9090}
+  grpc:
+    server:
+      port: ${PORT:9090}

@@ -1,8 +1,8 @@
-const RATE = 1;
+const RATE = parseInt(__ENV.RPS || "100", 10);
 const TIME_UNIT = "1s";
-const DURATION = "1s";
-const PRE_ALLOCATED_VUS = 3200;
-const MAX_VUS = 20000;
+const DURATION = "30s";
+const PRE_ALLOCATED_VUS = Math.max(50, RATE * 2);
+const MAX_VUS = Math.max(500, RATE * 10);
 
 export function buildOptions(name = "run") {
     return {

@@ -1,5 +1,5 @@
 import grpc from "k6/net/grpc";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import { Trend } from "k6/metrics";
 import { buildOptions } from "./config/options.js";
 
@@ -22,8 +22,6 @@ export default function () {
     );
     const duration = Date.now() - start;
 
-    console.log(res)
-
     const ok = check(res, {
         "status OK": (r) => r && r.status === grpc.StatusOK,
         "error is null": (r) => r && r.error === null,
@@ -34,5 +32,4 @@ export default function () {
     }
 
     client.close();
-    sleep(1);
 }

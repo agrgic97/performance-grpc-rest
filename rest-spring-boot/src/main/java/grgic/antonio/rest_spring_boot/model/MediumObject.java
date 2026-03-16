@@ -8,8 +8,5 @@ import java.util.List;
 @Value
 @Builder
 public class MediumObject {
-    String payloadType;
-    String description;
-    String unit;
-    List<Integer> items;
+    List<SmallObject> items;
 }

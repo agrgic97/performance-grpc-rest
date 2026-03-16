@@ -3,10 +3,10 @@ package grgic.antonio.grpc_spring_boot.service;
 import grgic.antonio.grpc_codegen.proto.*;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@GrpcService
+@Service
 public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBase {
 
     private final PayloadAssetService assets;
@@ -43,8 +43,8 @@ public class PayloadGrpcService extends PayloadServiceGrpc.PayloadServiceImplBas
 
     @Override
     public void streamLarge(Empty req, StreamObserver<MediumPayload> obs) {
-        for (MediumPayload item : assets.largeObject().getItemsList()) {
-            obs.onNext(item);
+        for (int i = 0; i < 10; i++) {
+            obs.onNext(assets.mediumObject());
         }
         obs.onCompleted();
     }

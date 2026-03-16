@@ -1,5 +1,5 @@
 import grpc from "k6/net/grpc";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import {buildOptions} from "./config/options.js";
 
 const client = new grpc.Client();
@@ -26,5 +26,4 @@ export default function () {
     });
 
     client.close();
-    sleep(1);
 }

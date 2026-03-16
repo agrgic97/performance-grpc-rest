@@ -8,5 +8,5 @@ import java.util.List;
 @Value
 @Builder
 public class LargeObject {
-    List<MediumObject> items;
+    List<SmallObject> items;
 }

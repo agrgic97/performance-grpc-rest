@@ -11,25 +11,127 @@ service PayloadService {
 
 message Empty {}
 
+enum StatusCode {
+  UNKNOWN = 0;
+  OK = 1;
+  WARN = 2;
+  ERROR = 3;
+  PENDING = 4;
+}
+
 message SmallPayload {
-  int32 id = 1;
-  string protocol = 2;
-  string service = 3;
-  string payload_type = 4;
-  string status = 5;
-  bool fixed = 6;
+  // integers (fields 1–65)
+  int32 int_val_1  = 1;
+  int32 int_val_2  = 2;
+  int32 int_val_3  = 3;
+  int32 int_val_4  = 4;
+  int32 int_val_5  = 5;
+  int32 int_val_6  = 6;
+  int32 int_val_7  = 7;
+  int32 int_val_8  = 8;
+  int32 int_val_9  = 9;
+  int32 int_val_10 = 10;
+  int32 int_val_11 = 11;
+  int32 int_val_12 = 12;
+  int32 int_val_13 = 13;
+  int32 int_val_14 = 14;
+  int32 int_val_15 = 15;
+  int32 int_val_16 = 16;
+  int32 int_val_17 = 17;
+  int32 int_val_18 = 18;
+  int32 int_val_19 = 19;
+  int32 int_val_20 = 20;
+  int32 int_val_21 = 21;
+  int32 int_val_22 = 22;
+  int32 int_val_23 = 23;
+  int32 int_val_24 = 24;
+  int32 int_val_25 = 25;
+  int32 int_val_26 = 26;
+  int32 int_val_27 = 27;
+  int32 int_val_28 = 28;
+  int32 int_val_29 = 29;
+  int32 int_val_30 = 30;
+  int32 int_val_31 = 31;
+  int32 int_val_32 = 32;
+  int32 int_val_33 = 33;
+  int32 int_val_34 = 34;
+  int32 int_val_35 = 35;
+  int32 int_val_36 = 36;
+  int32 int_val_37 = 37;
+  int32 int_val_38 = 38;
+  int32 int_val_39 = 39;
+  int32 int_val_40 = 40;
+  int32 int_val_41 = 41;
+  int32 int_val_42 = 42;
+  int32 int_val_43 = 43;
+  int32 int_val_44 = 44;
+  int32 int_val_45 = 45;
+  int32 int_val_46 = 46;
+  int32 int_val_47 = 47;
+  int32 int_val_48 = 48;
+  int32 int_val_49 = 49;
+  int32 int_val_50 = 50;
+  int32 int_val_51 = 51;
+  int32 int_val_52 = 52;
+  int32 int_val_53 = 53;
+  int32 int_val_54 = 54;
+  int32 int_val_55 = 55;
+  int32 int_val_56 = 56;
+  int32 int_val_57 = 57;
+  int32 int_val_58 = 58;
+  int32 int_val_59 = 59;
+  int32 int_val_60 = 60;
+  int32 int_val_61 = 61;
+  int32 int_val_62 = 62;
+  int32 int_val_63 = 63;
+  int32 int_val_64 = 64;
+  int32 int_val_65 = 65;
+  // strings (fields 66–80)
+  string str_val_1  = 66;
+  string str_val_2  = 67;
+  string str_val_3  = 68;
+  string str_val_4  = 69;
+  string str_val_5  = 70;
+  string str_val_6  = 71;
+  string str_val_7  = 72;
+  string str_val_8  = 73;
+  string str_val_9  = 74;
+  string str_val_10 = 75;
+  string str_val_11 = 76;
+  string str_val_12 = 77;
+  string str_val_13 = 78;
+  string str_val_14 = 79;
+  string str_val_15 = 80;
+  // enums (fields 81–90)
+  StatusCode enum_val_1  = 81;
+  StatusCode enum_val_2  = 82;
+  StatusCode enum_val_3  = 83;
+  StatusCode enum_val_4  = 84;
+  StatusCode enum_val_5  = 85;
+  StatusCode enum_val_6  = 86;
+  StatusCode enum_val_7  = 87;
+  StatusCode enum_val_8  = 88;
+  StatusCode enum_val_9  = 89;
+  StatusCode enum_val_10 = 90;
+  // small int arrays (fields 91–97)
+  repeated int32 int_arr_1 = 91;
+  repeated int32 int_arr_2 = 92;
+  repeated int32 int_arr_3 = 93;
+  repeated int32 int_arr_4 = 94;
+  repeated int32 int_arr_5 = 95;
+  repeated int32 int_arr_6 = 96;
+  repeated int32 int_arr_7 = 97;
+  // small string arrays (fields 98–99)
+  repeated string str_arr_1 = 98;
+  repeated string str_arr_2 = 99;
+  // small enum array (field 100)
+  repeated StatusCode enum_arr_1 = 100;
 }
 
 message MediumPayload {
-  string payload_type = 1;
-  string description = 2;
-  string unit = 3;
-  repeated int64 items = 4;
+  repeated SmallPayload items = 1;
 }
 
 message LargePayload {
-  string payload_type = 1;
-  string description = 2;
-  string unit = 3;
-  repeated MediumPayload items = 4;
+  repeated SmallPayload items = 1;
 }

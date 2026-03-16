@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import {buildOptions} from "./config/options.js";
 
 const BASE_URL = __ENV.BASE_URL;
@@ -9,12 +9,10 @@ export const options = buildOptions("rest-medium");
 
 export default function () {
     const res = http.get(`${BASE_URL}${PATH}`, {
-        discardResponseMessage: true
+        discardResponseBodies: true
     });
 
     check(res, {
         "status 200": (r) => r.status === 200,
     });
-
-    sleep(1);
 }

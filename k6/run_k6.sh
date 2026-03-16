@@ -3,8 +3,9 @@ set -euo pipefail
 
 MODE="${1:-rest}"     # rest | grpc
 TARGET="${2:-java}"   # java | node
-TEST="${3:-all}"      # z.B. small | medium | large | stream_large | all
+TEST="${3:-all}"      # z.B. small | medium | large | large_compressed | stream_large | all
 SERVICE_SOURCE="${4:-local}"  # local | docker
+RPS="${5:-100}"       # requests per second, e.g. 50 | 100 | 500 | 1000
 
 OUT_DIR="k6/results"
 mkdir -p "$OUT_DIR"
@@ -47,10 +48,11 @@ run_rest () {
   local name="$1"
   local script="$2"
 
-  echo "▶ REST $TARGET: $name (constant-arrival-rate, 100 rps)"
+  echo "▶ REST $TARGET: $name (constant-arrival-rate, $RPS rps)"
   k6 run \
     -e BASE_URL="$REST_BASE" \
-    --summary-export="$OUT_DIR/rest_${TARGET}_${SERVICE_SOURCE}_${name}_${TS}.json" \
+    -e RPS="$RPS" \
+    --summary-export="$OUT_DIR/rest_${TARGET}_${SERVICE_SOURCE}_${name}_${RPS}rps_${TS}.json" \
     "$script"
 }
 
@@ -58,10 +60,11 @@ run_grpc () {
   local name="$1"
   local script="$2"
 
-  echo "▶ gRPC $TARGET: $name (constant-arrival-rate, 100 rps)"
+  echo "▶ gRPC $TARGET: $name (constant-arrival-rate, $RPS rps)"
   k6 run \
     -e BASE_URL="$GRPC_ADDR" \
-    --summary-export="$OUT_DIR/grpc_${TARGET}_${SERVICE_SOURCE}_${name}_${TS}.json" \
+    -e RPS="$RPS" \
+    --summary-export="$OUT_DIR/grpc_${TARGET}_${SERVICE_SOURCE}_${name}_${RPS}rps_${TS}.json" \
     "$script"
 }
 
@@ -85,6 +88,7 @@ echo " Mode   : $MODE"
 echo " Target : $TARGET"
 echo " Test   : $TEST"
 echo " Source : $SERVICE_SOURCE"
+echo " RPS    : $RPS"
 echo " REST   : $REST_BASE"
 echo " gRPC   : $GRPC_ADDR"
 echo "=========================================="
@@ -105,7 +109,7 @@ elif [ "$MODE" = "grpc" ]; then
     run_grpc_payload_class small
     run_grpc_payload_class medium
     run_grpc_payload_class large
-    run_grpc_payload_class large_gzip
+    run_grpc_payload_class large_compressed
     run_grpc stream_large "k6/grpc_stream_large.js"
   elif [[ "$TEST" =~ ^(small|medium|large|large_compressed|stream_large)$ ]]; then
     run_grpc "$TEST" "k6/grpc_${TEST}.js"
