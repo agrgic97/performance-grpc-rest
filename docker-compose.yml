@@ -10,12 +10,7 @@ services:
     networks:
       - bench
     environment:
-      - JAVA_OPTS=-Xms4g -Xmx4g
       - SERVER_PORT=8081
-    deploy:
-      resources:
-        limits:
-          memory: 4g
 
   # ---------- gRPC (Spring Boot / Java) ----------
   grpc-spring-boot:
@@ -28,12 +23,7 @@ services:
     networks:
       - bench
     environment:
-      - JAVA_OPTS=-Xms4g -Xmx4g
       - GRPC_SERVER_PORT=9091
-    deploy:
-      resources:
-        limits:
-          memory: 4g
 
   # ---------- REST (Node / Express) ----------
   rest-node:
@@ -47,10 +37,6 @@ services:
       - bench
     environment:
       - PORT=3001
-    deploy:
-      resources:
-        limits:
-          memory: 4g
 
   # ---------- gRPC (Node) ----------
   grpc-node:
@@ -64,10 +50,6 @@ services:
       - bench
     environment:
       - PORT=4001
-    deploy:
-      resources:
-        limits:
-          memory: 4g
 
   # ---------- k6 Load Tester ----------
   # Usage: docker compose run --rm k6 run -e BASE_URL=http://rest-spring-boot:8081 /scripts/rest_small.js

@@ -18,8 +18,8 @@ public class PayloadAssetService {
     @PostConstruct
     public void load() {
         this.smallObject = generateSmallObject();
-        this.mediumObject = generateMediumObject();
-        this.largeObject = generateLargeObject();
+        this.mediumObject = generateMediumObject(this.smallObject);
+        this.largeObject = generateLargeObject(this.smallObject);
     }
 
     private SmallObject generateSmallObject() {
@@ -55,23 +55,21 @@ public class PayloadAssetService {
                 .build();
     }
 
-    private MediumObject generateMediumObject() {
+    private MediumObject generateMediumObject(SmallObject smallObject) {
         List<SmallObject> items = new ArrayList<>(100);
-        SmallObject small = generateSmallObject();
 
         for (int i = 0; i < 100; i++) {
-            items.add(small);
+            items.add(smallObject);
         }
 
         return MediumObject.builder().items(items).build();
     }
 
-    private LargeObject generateLargeObject() {
+    private LargeObject generateLargeObject(SmallObject smallObject) {
         List<SmallObject> items = new ArrayList<>(1000);
-        SmallObject small = generateSmallObject();
 
-        for (int i = 0; i < 1000; i++) {
-            items.add(small);
+        for (int i = 0; i < 5000; i++) {
+            items.add(smallObject);
         }
 
         return LargeObject.builder().items(items).build();
