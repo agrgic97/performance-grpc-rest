@@ -89,7 +89,7 @@ public class PayloadAssetService {
     private LargePayload generateLargeObject(SmallPayload smallPayload) {
         LargePayload.Builder builder = LargePayload.newBuilder();
 
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 1000; i++) {
             builder.addItems(smallPayload);
         }
 

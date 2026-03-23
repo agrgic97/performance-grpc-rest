@@ -7,8 +7,8 @@ class PayloadAssetService {
 
     load() {
         this.smallObject = this.#generateSmallObject();
-        this.mediumObject = this.#generateMediumObject();
-        this.largeObject = this.#generateLargeObject();
+        this.mediumObject = this.#generateMediumObject(this.smallObject);
+        this.largeObject = this.#generateLargeObject(this.smallObject);
 
         return this;
     }
@@ -57,20 +57,18 @@ class PayloadAssetService {
         };
     }
 
-    #generateMediumObject() {
-        const small = this.#generateSmallObject();
+    #generateMediumObject(smallObject) {
         const items = [];
         for (let i = 0; i < 100; i++) {
-            items.push(small);
+            items.push(smallObject);
         }
         return { items };
     }
 
-    #generateLargeObject() {
-        const small = this.#generateSmallObject();
+    #generateLargeObject(smallObject) {
         const items = [];
         for (let i = 0; i < 1000; i++) {
-            items.push(small);
+            items.push(smallObject);
         }
         return { items };
     }

@@ -1,83 +1,70 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MODE="${1:-rest}"     # rest | grpc
-TARGET="${2:-java}"   # java | node
-TEST="${3:-all}"      # z.B. small | medium | large | large_compressed | stream_large | all
+MODE="${1:-rest}"             # rest | grpc
+TARGET="${2:-java}"           # java | node
+TEST="${3:-all}"              # small | medium | large | large_compressed | stream_large | all
 SERVICE_SOURCE="${4:-local}"  # local | docker
-RPS="${5:-100}"       # requests per second, e.g. 50 | 100 | 500 | 1000
+VUS="${5:-10}"                # virtual users, e.g. 10 | 50 | 100 | 500
+
 
 OUT_DIR="k6/results"
 mkdir -p "$OUT_DIR"
 
 TS="$(date +%Y-%m-%d_%H-%M-%S)"
 
-if ! command -v k6 >/dev/null 2>&1; then
-  echo "ERROR: k6 not found. Install via 'brew install k6'" >&2
+if [[ "$TARGET" != "java" && "$TARGET" != "node" ]]; then
+  echo "ERROR: Unknown target '$TARGET'" >&2
   exit 1
 fi
 
 if [ "$SERVICE_SOURCE" = "local" ]; then
-  if [ "$TARGET" = "java" ]; then
-    REST_BASE="http://localhost:8080"
-    GRPC_ADDR="localhost:9090"
-  elif [ "$TARGET" = "node" ]; then
-    REST_BASE="http://localhost:3000"
-    GRPC_ADDR="localhost:4000"
-  else
-    echo "ERROR: Unknown target '$TARGET'" >&2
+  if ! command -v k6 >/dev/null 2>&1; then
+    echo "ERROR: k6 not found. Install via 'brew install k6'" >&2
     exit 1
   fi
+  K6_CMD="k6"
+  SCRIPT_DIR="k6"
+  RESULT_DIR="$OUT_DIR"
+
+  if [ "$TARGET" = "java" ]; then
+    CLIENT_BASE="http://localhost:8085"   # client-spring-boot
+  else
+    CLIENT_BASE="http://localhost:3005"   # client-node
+  fi
+
 elif [ "$SERVICE_SOURCE" = "docker" ]; then
-  if [ "$TARGET" = "java" ]; then
-    REST_BASE="http://localhost:8081"
-    GRPC_ADDR="localhost:9091"
-  elif [ "$TARGET" = "node" ]; then
-    REST_BASE="http://localhost:3001"
-    GRPC_ADDR="localhost:4001"
-  else
-    echo "ERROR: Unknown target '$TARGET'" >&2
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "ERROR: docker not found." >&2
     exit 1
   fi
+  K6_CMD="docker compose run --rm k6"
+  SCRIPT_DIR="/scripts"
+  RESULT_DIR="/scripts/results"
+
+  if [ "$TARGET" = "java" ]; then
+    CLIENT_BASE="http://client-spring-boot:8085"
+  else
+    CLIENT_BASE="http://client-node:3005"
+  fi
+
 else
   echo "ERROR: Service source must be 'local' or 'docker'" >&2
   exit 1
 fi
 
-run_rest () {
-  local name="$1"
-  local script="$2"
+run_test () {
+  local protocol="$1"
+  local payload="$2"
 
-  echo "▶ REST $TARGET: $name (constant-arrival-rate, $RPS rps)"
-  k6 run \
-    -e BASE_URL="$REST_BASE" \
-    -e RPS="$RPS" \
-    --summary-export="$OUT_DIR/rest_${TARGET}_${SERVICE_SOURCE}_${name}_${RPS}rps_${TS}.json" \
-    "$script"
-}
-
-run_grpc () {
-  local name="$1"
-  local script="$2"
-
-  echo "▶ gRPC $TARGET: $name (constant-arrival-rate, $RPS rps)"
-  k6 run \
-    -e BASE_URL="$GRPC_ADDR" \
-    -e RPS="$RPS" \
-    --summary-export="$OUT_DIR/grpc_${TARGET}_${SERVICE_SOURCE}_${name}_${RPS}rps_${TS}.json" \
-    "$script"
-}
-
-run_rest_payload_class () {
-  local payload_class="$1"
-
-  run_rest "$payload_class" "k6/rest_${payload_class}.js"
-}
-
-run_grpc_payload_class () {
-  local payload_class="$1"
-
-  run_grpc "$payload_class" "k6/grpc_${payload_class}.js"
+  echo "▶ $protocol $TARGET: $payload (constant-vus, $VUS vus)"
+  $K6_CMD run \
+    -e BASE_URL="$CLIENT_BASE" \
+    -e PROTOCOL="$protocol" \
+    -e PAYLOAD="$payload" \
+    -e VUS="$VUS" \
+    --summary-export="$RESULT_DIR/${protocol}_${TARGET}_${SERVICE_SOURCE}_${payload}_${VUS}vus_${TS}.json" \
+    "$SCRIPT_DIR/performance-test.js"
 }
 
 ############################################
@@ -88,33 +75,28 @@ echo " Mode   : $MODE"
 echo " Target : $TARGET"
 echo " Test   : $TEST"
 echo " Source : $SERVICE_SOURCE"
-echo " RPS    : $RPS"
-echo " REST   : $REST_BASE"
-echo " gRPC   : $GRPC_ADDR"
+echo " VUS    : $VUS"
+echo " Client : $CLIENT_BASE"
 echo "=========================================="
 
 if [ "$MODE" = "rest" ]; then
   if [ "$TEST" = "all" ]; then
-    run_rest_payload_class small
-    run_rest_payload_class medium
-    run_rest_payload_class large
-  elif [[ "$TEST" =~ ^(small|medium|large)$ ]]; then
-    run_rest_payload_class "$TEST"
+    run_test rest small
+    run_test rest medium
+    run_test rest large
   else
-    run_rest "$TEST" "k6/rest_${TEST}.js"
+    run_test rest "$TEST"
   fi
 
 elif [ "$MODE" = "grpc" ]; then
   if [ "$TEST" = "all" ]; then
-    run_grpc_payload_class small
-    run_grpc_payload_class medium
-    run_grpc_payload_class large
-    run_grpc_payload_class large_compressed
-    run_grpc stream_large "k6/grpc_stream_large.js"
-  elif [[ "$TEST" =~ ^(small|medium|large|large_compressed|stream_large)$ ]]; then
-    run_grpc "$TEST" "k6/grpc_${TEST}.js"
+    run_test grpc small
+    run_test grpc medium
+    run_test grpc large
+    run_test grpc large_compressed
+    run_test grpc stream_large
   else
-    run_grpc "$TEST" "k6/grpc_${TEST}.js"
+    run_test grpc "$TEST"
   fi
 
 else

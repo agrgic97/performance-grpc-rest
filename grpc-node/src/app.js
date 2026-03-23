@@ -32,9 +32,18 @@ server.bindAsync(
     grpc.ServerCredentials.createInsecure(),
     (err, port) => {
         if (err) {
-            console.error("Failed to bind gRPC server:", err);
+            console.error("[grpc-node] Failed to bind gRPC server:", err);
             process.exit(1);
         }
-        console.log(`gRPC Node listening on 0.0.0.0:${port}`);
+        console.log(`[grpc-node] gRPC server listening on 0.0.0.0:${port}`);
     }
 );
+
+process.on('unhandledRejection', (reason) => {
+    console.error('[grpc-node] Unhandled promise rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('[grpc-node] Uncaught exception:', err);
+    process.exit(1);
+});

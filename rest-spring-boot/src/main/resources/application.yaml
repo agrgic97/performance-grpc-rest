@@ -2,9 +2,3 @@ server:
   port: ${PORT:8080}
   compression:
     enabled: false
-spring:
-  jackson:
-    serialization:
-      indent_output: false
-bench:
-  large-json-size-bytes: ${LARGE_JSON_SIZE_BYTES:1073741824}
