@@ -68,7 +68,7 @@ public class PayloadAssetService {
     private LargeObject generateLargeObject(SmallObject smallObject) {
         List<SmallObject> items = new ArrayList<>(1000);
 
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 1000; i++) {
             items.add(smallObject);
         }
 

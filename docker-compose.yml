@@ -10,7 +10,7 @@ services:
     networks:
       - bench
     environment:
-      - SERVER_PORT=8081
+      - PORT=8081
 
   # ---------- gRPC (Spring Boot / Java) ----------
   grpc-spring-boot:
@@ -23,7 +23,7 @@ services:
     networks:
       - bench
     environment:
-      - GRPC_SERVER_PORT=9091
+      - PORT=9091
 
   # ---------- REST (Node / Express) ----------
   rest-node:
@@ -51,9 +51,45 @@ services:
     environment:
       - PORT=4001
 
+  # ---------- Client (Spring Boot / Java) ----------
+  client-spring-boot:
+    build:
+      context: ./client-spring-boot
+      dockerfile: Dockerfile
+    container_name: client-spring-boot
+    ports:
+      - "8085:8085"
+    networks:
+      - bench
+    environment:
+      - SERVER_PORT=8085
+      - CLIENT_REST_JAVA_BASE_URL=http://rest-spring-boot:8081
+      - CLIENT_GRPC_JAVA_ADDRESS=grpc-spring-boot:9091
+    depends_on:
+      - rest-spring-boot
+      - grpc-spring-boot
+
+  # ---------- Client (Node / Express) ----------
+  client-node:
+    build:
+      context: ./client-node
+      dockerfile: Dockerfile
+    container_name: client-node
+    ports:
+      - "3005:3005"
+    networks:
+      - bench
+    environment:
+      - PORT=3005
+      - REST_NODE_URL=http://rest-node:3001
+      - GRPC_NODE_ADDR=grpc-node:4001
+    depends_on:
+      - rest-node
+      - grpc-node
+
   # ---------- k6 Load Tester ----------
-  # Usage: docker compose run --rm k6 run -e BASE_URL=http://rest-spring-boot:8081 /scripts/rest_small.js
-  # gRPC:  docker compose run --rm k6 run -e BASE_URL=grpc-spring-boot:9091 /scripts/grpc_small.js
+  # Usage: docker compose run --rm k6 run -e BASE_URL=http://client-spring-boot:8085 /scripts/performance-test.js
+  # Or use run_k6.sh with SERVICE_SOURCE=docker
   k6:
     image: grafana/k6:latest
     networks:
@@ -62,6 +98,9 @@ services:
       - ./k6:/scripts
     profiles:
       - k6
+    depends_on:
+      - client-spring-boot
+      - client-node
 
 networks:
   bench:

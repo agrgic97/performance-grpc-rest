@@ -1,0 +1,13 @@
+server:
+  port: 8085
+
+client:
+  rest-java:
+    base-url: ${CLIENT_REST_JAVA_BASE_URL:http://localhost:8080}
+  grpc-java:
+    address: ${CLIENT_GRPC_JAVA_ADDRESS:localhost:9090}
+
+spring:
+  threads:
+    virtual:
+      enabled: true

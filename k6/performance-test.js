@@ -11,13 +11,10 @@ const scenarioName = `${PROTOCOL}-${PAYLOAD.replace(/_/g, "-")}`;
 
 export const options = buildOptions(scenarioName);
 
-const isGrpcLarge = PROTOCOL === "grpc" && (PAYLOAD === "large" || PAYLOAD === "large_compressed");
-const isGrpcStreamLarge = PROTOCOL === "grpc" && PAYLOAD === "stream_large";
-
 export default function () {
     const res = http.get(`${BASE_URL}/${PROTOCOL}/${PAYLOAD}`);
 
-    const ok = check(res, {
+    check(res, {
         "status 200": (r) => r.status === 200,
     });
 }

@@ -35,6 +35,8 @@ function callUnary(method) {
     });
 }
 
+const STREAM_LARGE_EXPECTED_COUNT = 10;
+
 function callServerStream(method) {
     return new Promise((resolve, reject) => {
         const call  = stub[method]({});
@@ -44,7 +46,15 @@ function callServerStream(method) {
             err.message = `gRPC stream ${method} failed [code=${err.code}]: ${err.details || err.message}`;
             reject(err);
         });
-        call.on('end',   () => resolve(items));
+        call.on('end', () => {
+            if (items.length !== STREAM_LARGE_EXPECTED_COUNT) {
+                reject(new Error(
+                    `gRPC stream ${method}: expected ${STREAM_LARGE_EXPECTED_COUNT} messages but received ${items.length}`
+                ));
+            } else {
+                resolve(items);
+            }
+        });
     });
 }
 
@@ -62,11 +72,11 @@ async function fetch(size) {
             const data = await callUnary('GetLarge');
             return new LargeObject(data);
         }
-        case 'large_compressed': {
+        case 'large-compressed': {
             const data = await callUnary('GetLargeCompressed');
             return new LargeObject(data);
         }
-        case 'stream_large': {
+        case 'stream-large': {
             const chunks = await callServerStream('StreamLarge');
             return chunks.map(d => new MediumObject(d));
         }

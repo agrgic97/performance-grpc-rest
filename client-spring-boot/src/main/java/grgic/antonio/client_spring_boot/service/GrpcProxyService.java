@@ -27,10 +27,19 @@ public class GrpcProxyService {
             case "small"            -> javaStub.getSmall(request);
             case "medium"           -> javaStub.getMedium(request);
             case "large"            -> javaStub.getLarge(request);
-            case "large_compressed" -> javaStub.getLargeCompressed(request);
-            case "stream_large"     -> {
+            case "large-compressed" -> javaStub.getLargeCompressed(request);
+            case "stream-large"     -> {
                 Iterator<MediumPayload> it = javaStub.streamLarge(request);
-                while (it.hasNext()) it.next();
+                int count = 0;
+                while (it.hasNext()) {
+                    it.next();
+                    count++;
+                }
+                if (count != 10) {
+                    throw new IllegalStateException(
+                        "StreamLarge: expected 10 messages but received " + count
+                    );
+                }
             }
             default -> throw new IllegalArgumentException("Unknown size: " + size);
         }
