@@ -16,10 +16,6 @@ public class GrpcProxyService {
         this.javaStub = javaStub;
     }
 
-    /**
-     * Calls the gRPC method on grpc-spring-boot, fully deserializes the protobuf
-     * response (reassembly), then discards it.
-     */
     public void fetch(String size) {
         Empty request = Empty.newBuilder().build();
 

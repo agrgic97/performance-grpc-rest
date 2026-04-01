@@ -17,10 +17,6 @@ public class RestProxyService {
         this.javaClient = RestClient.create(javaBaseUrl);
     }
 
-    /**
-     * Calls /api/payload/{size} on rest-spring-boot, fully deserializes the JSON
-     * response into the corresponding model object (reassembly), then discards it.
-     */
     public void fetch(String size) {
         switch (size) {
             case "small"  -> javaClient.get().uri("/api/payload/small").retrieve().body(SmallObject.class);

@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/rest/:size', async (req, res) => {
     const { size } = req.params;
     try {
-        await restProxy.fetch(size);
+        await restProxy.fetchFromServer(size);
         res.status(200).end();
     } catch (err) {
         console.error(`[client-node] REST proxy error (size=${size}): ${err.message}`, { status: err.status, stack: err.stack });
@@ -18,7 +18,7 @@ router.get('/rest/:size', async (req, res) => {
 router.get('/grpc/:size', async (req, res) => {
     const { size } = req.params;
     try {
-        await grpcProxy.fetch(size);
+        await grpcProxy.fetchFromServer(size);
         res.status(200).end();
     } catch (err) {
         console.error(`[client-node] gRPC proxy error (size=${size}): ${err.message}`, { code: err.code, details: err.details, stack: err.stack });

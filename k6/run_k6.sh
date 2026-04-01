@@ -43,9 +43,9 @@ elif [ "$SERVICE_SOURCE" = "docker" ]; then
   RESULT_DIR="/scripts/results"
 
   if [ "$TARGET" = "java" ]; then
-    CLIENT_BASE="http://client-spring-boot:8085"
+    CLIENT_BASE="http://client-spring-boot:8086"
   else
-    CLIENT_BASE="http://client-node:3005"
+    CLIENT_BASE="http://client-node:3006"
   fi
 
 else

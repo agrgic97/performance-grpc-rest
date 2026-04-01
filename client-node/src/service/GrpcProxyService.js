@@ -8,13 +8,7 @@ const { MediumObject } = require('../model/MediumObject');
 const { LargeObject }  = require('../model/LargeObject');
 
 const PROTO_PATH = path.resolve(__dirname, '../../proto/payload.proto');
-const packageDef = protoLoader.loadSync(PROTO_PATH, {
-    keepCase: true,
-    longs:    Number,
-    enums:    String,
-    defaults: true,
-    oneofs:   true,
-});
+const packageDef = protoLoader.loadSync(PROTO_PATH);
 const proto   = grpc.loadPackageDefinition(packageDef);
 const address = process.env.GRPC_NODE_ADDR || 'localhost:4000';
 const stub    = new proto.bench.payload.PayloadService(
@@ -58,7 +52,7 @@ function callServerStream(method) {
     });
 }
 
-async function fetch(size) {
+async function fetchFromServer(size) {
     switch (size) {
         case 'small': {
             const data = await callUnary('GetSmall');
@@ -85,4 +79,4 @@ async function fetch(size) {
     }
 }
 
-module.exports = { fetch };
+module.exports = { fetchFromServer };

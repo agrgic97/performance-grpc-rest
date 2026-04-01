@@ -10,13 +10,7 @@ const { createPayloadServiceImpl } = require("./grpc/payloadServiceImpl");
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const PROTO_PATH = path.resolve(__dirname, "../proto/payload.proto");
-const packageDef = protoLoader.loadSync(PROTO_PATH, {
-    keepCase: true,
-    longs: Number,
-    enums: String,
-    defaults: true,
-    oneofs: true,
-});
+const packageDef = protoLoader.loadSync(PROTO_PATH);
 const proto = grpc.loadPackageDefinition(packageDef);
 
 const payloadAssetService = new PayloadAssetService().load();

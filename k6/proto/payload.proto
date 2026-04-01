@@ -20,7 +20,6 @@ enum StatusCode {
 }
 
 message SmallPayload {
-  // integers (fields 1–65)
   int32 int_val_1  = 1;
   int32 int_val_2  = 2;
   int32 int_val_3  = 3;
@@ -86,7 +85,6 @@ message SmallPayload {
   int32 int_val_63 = 63;
   int32 int_val_64 = 64;
   int32 int_val_65 = 65;
-  // strings (fields 66–80)
   string str_val_1  = 66;
   string str_val_2  = 67;
   string str_val_3  = 68;
@@ -102,7 +100,6 @@ message SmallPayload {
   string str_val_13 = 78;
   string str_val_14 = 79;
   string str_val_15 = 80;
-  // enums (fields 81–90)
   StatusCode enum_val_1  = 81;
   StatusCode enum_val_2  = 82;
   StatusCode enum_val_3  = 83;
@@ -113,7 +110,6 @@ message SmallPayload {
   StatusCode enum_val_8  = 88;
   StatusCode enum_val_9  = 89;
   StatusCode enum_val_10 = 90;
-  // small int arrays (fields 91–97)
   repeated int32 int_arr_1 = 91;
   repeated int32 int_arr_2 = 92;
   repeated int32 int_arr_3 = 93;
@@ -121,10 +117,8 @@ message SmallPayload {
   repeated int32 int_arr_5 = 95;
   repeated int32 int_arr_6 = 96;
   repeated int32 int_arr_7 = 97;
-  // small string arrays (fields 98–99)
   repeated string str_arr_1 = 98;
   repeated string str_arr_2 = 99;
-  // small enum array (field 100)
   repeated StatusCode enum_arr_1 = 100;
 }
 

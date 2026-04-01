@@ -1,13 +1,12 @@
 import http from "k6/http";
 import { check } from "k6";
-import { Trend } from "k6/metrics";
 import { buildOptions } from "./config/options.js";
 
 const PROTOCOL = __ENV.PROTOCOL;
 const PAYLOAD = __ENV.PAYLOAD;
 const BASE_URL = __ENV.BASE_URL;
 
-const scenarioName = `${PROTOCOL}-${PAYLOAD.replace(/_/g, "-")}`;
+const scenarioName = `${PROTOCOL}-${PAYLOAD}`;
 
 export const options = buildOptions(scenarioName);
 

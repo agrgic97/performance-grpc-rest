@@ -58,11 +58,11 @@ services:
       dockerfile: Dockerfile
     container_name: client-spring-boot
     ports:
-      - "8085:8085"
+      - "8086:8086"
     networks:
       - bench
     environment:
-      - SERVER_PORT=8085
+      - SERVER_PORT=8086
       - CLIENT_REST_JAVA_BASE_URL=http://rest-spring-boot:8081
       - CLIENT_GRPC_JAVA_ADDRESS=grpc-spring-boot:9091
     depends_on:
@@ -76,11 +76,11 @@ services:
       dockerfile: Dockerfile
     container_name: client-node
     ports:
-      - "3005:3005"
+      - "3006:3006"
     networks:
       - bench
     environment:
-      - PORT=3005
+      - PORT=3006
       - REST_NODE_URL=http://rest-node:3001
       - GRPC_NODE_ADDR=grpc-node:4001
     depends_on:
