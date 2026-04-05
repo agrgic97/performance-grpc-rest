@@ -8,7 +8,6 @@ import java.util.List;
 @Value
 @Builder
 public class SmallObject {
-    // 65 integer fields
     int intVal1;
     int intVal2;
     int intVal3;
@@ -74,7 +73,6 @@ public class SmallObject {
     int intVal63;
     int intVal64;
     int intVal65;
-    // 15 string fields
     String strVal1;
     String strVal2;
     String strVal3;
@@ -90,7 +88,6 @@ public class SmallObject {
     String strVal13;
     String strVal14;
     String strVal15;
-    // 10 enum fields
     String enumVal1;
     String enumVal2;
     String enumVal3;
@@ -101,7 +98,6 @@ public class SmallObject {
     String enumVal8;
     String enumVal9;
     String enumVal10;
-    // 7 small int arrays
     List<Integer> intArr1;
     List<Integer> intArr2;
     List<Integer> intArr3;
@@ -109,9 +105,7 @@ public class SmallObject {
     List<Integer> intArr5;
     List<Integer> intArr6;
     List<Integer> intArr7;
-    // 2 small string arrays
     List<String> strArr1;
     List<String> strArr2;
-    // 1 small enum array
     List<String> enumArr1;
 }
