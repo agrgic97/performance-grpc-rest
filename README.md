@@ -1,4 +1,4 @@
-# Lasttest-Projekt (minimal)
+# Lasttest-Projekt
 
 ## Voraussetzung
 - Docker + Docker Compose
